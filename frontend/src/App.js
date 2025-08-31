@@ -20,18 +20,19 @@ const App = () => {
   // Admin form state
   const [adminForm, setAdminForm] = useState({ username: '', password: '' });
 
-  useEffect(() => {
-    if (token) {
-      fetchUserData();
-      fetchGames();
-      fetchWagers();
-      fetchCart();
-      fetchLeaderboard();
-      if (user?.username === 'admin') {
-        fetchPendingWagers();
-      }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
+  if (token) {
+    fetchUserData();
+    fetchGames();
+    fetchWagers();
+    fetchCart();
+    fetchLeaderboard();
+    if (user?.username === 'admin') {
+      fetchPendingWagers();
     }
-  }, [token, user?.username]);
+  }
+}, [token, user?.username]);
 
   const apiCall = async (endpoint, options = {}) => {
     const config = {
