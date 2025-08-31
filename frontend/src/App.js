@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, DollarSign, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award } from 'lucide-react';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
