@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, Chev
+import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
 
@@ -312,7 +312,7 @@ const App = () => {
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            Demo credentials: testuser / password
+            Demo credentials: AndyM / password
           </div>
         </div>
       </div>
@@ -750,7 +750,7 @@ const App = () => {
                                 <p className="text-sm text-gray-500">
                                   {userGroup.wagers.length} wagers • Total: {userGroup.totalAmount} coins
                                 </p>
-                              </div>
+</div>
                               <div className="flex space-x-2">
                                 <button
                                   onClick={() => handleUserWagerDecision(userGroup.userId, 'approved')}
