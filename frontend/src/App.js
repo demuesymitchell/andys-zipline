@@ -483,7 +483,7 @@ const App = () => {
           
           {/* Games Tab */}
           {activeTab === 'games' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Available Games</h2>
                 <div className="text-sm text-gray-600">
@@ -748,54 +748,4 @@ const App = () => {
                                   Approve All
                                 </button>
                                 <button
-                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'rejected')}
-                                  disabled={loading}
-                                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
-                                >
-                                  <X className="h-4 w-4 mr-1" />
-                                  Reject All
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              {userGroup.wagers.map((wager) => (
-                                <div key={wager.id} className="bg-gray-50 p-3 rounded text-sm">
-                                  <strong>{wager.gameName}</strong> - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread}) - {wager.amount} coins
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Game Spreads - Collapsible */}
-              <div className="bg-white shadow rounded-lg">
-                <div 
-                  className="p-6 border-b cursor-pointer flex justify-between items-center hover:bg-gray-50"
-                  onClick={() => toggleAdminSection('spreads')}
-                >
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Set Game Spreads
-                  </h3>
-                  {adminSections.spreads ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                </div>
-                
-                {adminSections.spreads && (
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      {games.map((game) => (
-                        <div key={game.id} className="border border-gray-200 rounded-lg p-4">
-                          <div className="flex justify-between items-center">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">
-                                Game #{game.id}: {game.awayTeam} @ {game.homeTeam}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {formatDate(game.gameTime)}
-                              </p>
-                              {game.spreadsSet
+                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'rejecte
