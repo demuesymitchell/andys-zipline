@@ -368,7 +368,7 @@ const App = () => {
                 <User className="h-4 w-4 mr-1" />
                 {user?.username} {user?.isAdmin && <span className="ml-2 px-2 py-1 bg-emerald-900 text-emerald-300 text-xs rounded-full">(ADMIN)</span>}
               </div>
-              <div className="flex items-center text-sm font-medium text-emerald-400">
+              <div className="flex items-center text-sm font-medium text-yellow-400">
                 <Coins className="h-4 w-4 mr-1" />
                 {user?.coins} coins
               </div>
@@ -392,14 +392,56 @@ const App = () => {
         </div>
       </header>
 
-      {/* NFL Teams Banner */}
-      <div className="bg-gray-800 border-b border-gray-700 py-2 overflow-hidden">
-        <div className="whitespace-nowrap animate-pulse">
-          <div className="inline-flex space-x-8 text-emerald-400 text-sm font-medium">
-            {['Arizona Cardinals', 'Atlanta Falcons', 'Baltimore Ravens', 'Buffalo Bills', 'Carolina Panthers', 'Chicago Bears', 'Cincinnati Bengals', 'Cleveland Browns', 'Dallas Cowboys', 'Denver Broncos', 'Detroit Lions', 'Green Bay Packers', 'Houston Texans', 'Indianapolis Colts', 'Jacksonville Jaguars', 'Kansas City Chiefs', 'Las Vegas Raiders', 'Los Angeles Chargers', 'Los Angeles Rams', 'Miami Dolphins', 'Minnesota Vikings', 'New England Patriots', 'New Orleans Saints', 'New York Giants', 'New York Jets', 'Philadelphia Eagles', 'Pittsburgh Steelers', 'San Francisco 49ers', 'Seattle Seahawks', 'Tampa Bay Buccaneers', 'Tennessee Titans', 'Washington Commanders'].map((team, index) => (
+      {/* NFL Teams Banner with Logos */}
+      <div className="bg-gray-800 border-b border-gray-700 py-3 overflow-hidden">
+        <div className="whitespace-nowrap">
+          <div className="inline-flex space-x-6 text-emerald-400 text-sm font-medium animate-pulse">
+            {[
+              { name: 'Arizona Cardinals', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png' },
+              { name: 'Atlanta Falcons', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png' },
+              { name: 'Baltimore Ravens', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png' },
+              { name: 'Buffalo Bills', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png' },
+              { name: 'Carolina Panthers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/car.png' },
+              { name: 'Chicago Bears', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png' },
+              { name: 'Cincinnati Bengals', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png' },
+              { name: 'Cleveland Browns', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png' },
+              { name: 'Dallas Cowboys', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png' },
+              { name: 'Denver Broncos', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/den.png' },
+              { name: 'Detroit Lions', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/det.png' },
+              { name: 'Green Bay Packers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png' },
+              { name: 'Houston Texans', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png' },
+              { name: 'Indianapolis Colts', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png' },
+              { name: 'Jacksonville Jaguars', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png' },
+              { name: 'Kansas City Chiefs', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png' },
+              { name: 'Las Vegas Raiders', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png' },
+              { name: 'Los Angeles Chargers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png' },
+              { name: 'Los Angeles Rams', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png' },
+              { name: 'Miami Dolphins', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png' },
+              { name: 'Minnesota Vikings', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/min.png' },
+              { name: 'New England Patriots', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png' },
+              { name: 'New Orleans Saints', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/no.png' },
+              { name: 'New York Giants', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png' },
+              { name: 'New York Jets', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png' },
+              { name: 'Philadelphia Eagles', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png' },
+              { name: 'Pittsburgh Steelers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png' },
+              { name: 'San Francisco 49ers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png' },
+              { name: 'Seattle Seahawks', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png' },
+              { name: 'Tampa Bay Buccaneers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png' },
+              { name: 'Tennessee Titans', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png' },
+              { name: 'Washington Commanders', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png' }
+            ].map((team, index) => (
               <span key={index} className="flex items-center">
-                <Trophy className="h-3 w-3 mr-1" />
-                {team}
+                <img 
+                  src={team.logo} 
+                  alt={team.name}
+                  className="h-6 w-6 mr-2"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'inline';
+                  }}
+                />
+                <Trophy className="h-4 w-4 mr-1 hidden" />
+                {team.name}
               </span>
             ))}
           </div>
@@ -458,7 +500,7 @@ const App = () => {
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <div className="font-medium text-emerald-400">{item.amount} coins</div>
+                          <div className="font-medium text-yellow-400">{item.amount} coins</div>
                           <button
                             onClick={() => removeFromCart(item.id)}
                             className="text-red-400 hover:text-red-300"
@@ -477,7 +519,7 @@ const App = () => {
               <div className="space-y-4">
                 <div className="flex justify-between text-lg font-semibold">
                   <span className="text-white">Total:</span>
-                  <span className="text-emerald-400">{cartTotal} coins</span>
+                  <span className="text-yellow-400">{cartTotal} coins</span>
                 </div>
                 <div className="text-sm text-gray-400">
                   {cartTotal < minimumCartTotal 
@@ -573,11 +615,11 @@ const App = () => {
                             <div className="space-y-3">
                               <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
                                 <span className="text-sm text-gray-300">{game.awayTeam}</span>
-                                <span className="font-medium text-emerald-400">+{Math.abs(game.awaySpread)}</span>
+                                <span className="font-medium text-yellow-400">+{Math.abs(game.awaySpread)}</span>
                               </div>
                               <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
                                 <span className="text-sm text-gray-300">{game.homeTeam}</span>
-                                <span className="font-medium text-emerald-400">{game.homeSpread}</span>
+                                <span className="font-medium text-yellow-400">{game.homeSpread}</span>
                               </div>
                             </div>
 
@@ -624,7 +666,7 @@ const App = () => {
                                   amountInput.value = '';
                                 }}
                                 disabled={loading}
-                                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 disabled:opacity-50 text-sm"
+                                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
                               >
                                 Add to Cart
                               </button>
@@ -669,7 +711,7 @@ const App = () => {
                           </div>
                           <div className="flex items-center space-x-4">
                             <div className="text-right">
-                              <div className="font-medium text-emerald-400">{wager.amount} coins</div>
+                              <div className="font-medium text-yellow-400">{wager.amount} coins</div>
                               <div className="text-sm text-gray-500">
                                 {new Date(wager.createdAt).toLocaleDateString()}
                               </div>
@@ -710,12 +752,12 @@ const App = () => {
                             {index > 2 && <span className="text-lg font-bold text-gray-400">#{index + 1}</span>}
                           </div>
                           <div>
-                            <div className={`font-medium ${player.username === user?.username ? 'text-emerald-400' : 'text-white'}`}>
+                            <div className={`font-medium ${player.username === user?.username ? 'text-yellow-400' : 'text-white'}`}>
                               {player.username} {player.username === user?.username && '(You)'}
                             </div>
                           </div>
                         </div>
-                        <div className="font-bold text-emerald-400">
+                        <div className="font-bold text-yellow-400">
                           {player.coins} coins
                         </div>
                       </div>
@@ -781,7 +823,7 @@ const App = () => {
                             <div className="space-y-2">
                               {userGroup.wagers.map((wager) => (
                                 <div key={wager.id} className="bg-gray-600 p-3 rounded text-sm">
-                                  <strong className="text-white">{wager.gameName}</strong> - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread}) - <span className="text-emerald-400">{wager.amount} coins</span>
+                                  <strong className="text-white">{wager.gameName}</strong> - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread}) - <span className="text-yellow-400">{wager.amount} coins</span>
                                 </div>
                               ))}
                             </div>
