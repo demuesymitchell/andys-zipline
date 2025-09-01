@@ -9,6 +9,7 @@ const App = () => {
   const [games, setGames] = useState([]);
   const [wagers, setWagers] = useState([]);
   const [cart, setCart] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [pendingWagers, setPendingWagers] = useState([]);
   const [activeTab, setActiveTab] = useState('games');
@@ -21,18 +22,18 @@ const App = () => {
   const [adminForm, setAdminForm] = useState({ username: '', password: '' });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-useEffect(() => {
-  if (token) {
-    fetchUserData();
-    fetchGames();
-    fetchWagers();
-    fetchCart();
-    fetchLeaderboard();
-    if (user?.username === 'admin') {
-      fetchPendingWagers();
+  useEffect(() => {
+    if (token) {
+      fetchUserData();
+      fetchGames();
+      fetchWagers();
+      fetchCart();
+      fetchLeaderboard();
+      if (user?.username === 'admin') {
+        fetchPendingWagers();
+      }
     }
-  }
-}, [token, user?.username]);
+  }, [token, user?.username]);
 
   const apiCall = async (endpoint, options = {}) => {
     const config = {
@@ -171,6 +172,7 @@ useEffect(() => {
       fetchCart();
       fetchWagers();
       fetchUserData();
+      setCartOpen(false);
       alert('Cart submitted for admin approval!');
     } catch (error) {
       alert(error.message || 'Failed to submit cart.');
@@ -306,7 +308,7 @@ useEffect(() => {
     return statusText[status] || status;
   };
 
-  const minimumBet = Math.floor(user?.coins * 0.1) || 200;
+  const minimumCartTotal = Math.floor(user?.coins * 0.1) || 200;
   const cartTotal = cart.reduce((sum, item) => sum + item.amount, 0);
 
   return (
@@ -330,10 +332,13 @@ useEffect(() => {
                 {user?.coins} coins
               </div>
               {cart.length > 0 && (
-                <div className="flex items-center text-sm font-medium text-blue-600">
+                <button
+                  onClick={() => setCartOpen(true)}
+                  className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
+                >
                   <ShoppingCart className="h-4 w-4 mr-1" />
-                  {cart.length} items
-                </div>
+                  {cart.length} items ({cartTotal} coins)
+                </button>
               )}
               <button
                 onClick={handleLogout}
@@ -350,7 +355,7 @@ useEffect(() => {
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
-            {['games', 'cart', 'wagers', 'leaderboard'].concat(user?.username === 'admin' ? ['admin'] : []).map((tab) => (
+            {['games', 'wagers', 'leaderboard'].concat(user?.username === 'admin' ? ['admin'] : []).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -360,13 +365,85 @@ useEffect(() => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {tab} {tab === 'cart' && cart.length > 0 && `(${cart.length})`}
+                {tab}
                 {tab === 'admin' && user?.username === 'admin' && pendingWagers.length > 0 && ` (${pendingWagers.length})`}
               </button>
             ))}
           </div>
         </div>
       </nav>
+
+      {/* Sliding Cart Panel */}
+      {cartOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setCartOpen(false)}></div>
+          <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl transform transition-transform">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-semibold">Shopping Cart</h2>
+              <button onClick={() => setCartOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              {cart.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <ShoppingCart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <p>Your cart is empty</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {cart.map((item) => (
+                    <div key={item.id} className="border border-gray-200 rounded-lg p-4">
+                                              <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900">{item.gameName}</h3>
+                          <p className="text-sm text-gray-600">
+                            {item.team} ({item.spread > 0 ? '+' : ''}{item.spread})
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="font-medium">{item.amount} coins</div>
+                          <button
+                            onClick={() => removeFromCart(item.id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t p-6">
+              <div className="space-y-4">
+                <div className="flex justify-between text-lg font-semibold">
+                  <span>Total:</span>
+                  <span>{cartTotal} coins</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {cartTotal < minimumCartTotal 
+                    ? `Minimum cart total: ${minimumCartTotal} coins (10% of your balance)`
+                    : cartTotal > user?.coins 
+                    ? 'Insufficient coins!'
+                    : 'Ready to submit for approval'
+                  }
+                </div>
+                <button
+                  onClick={submitCart}
+                  disabled={loading || cartTotal < minimumCartTotal || cartTotal > user?.coins || cart.length === 0}
+                  className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
+                >
+                  Submit for Approval
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -378,7 +455,7 @@ useEffect(() => {
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Available Games</h2>
                 <div className="text-sm text-gray-600">
-                  Minimum bet: {minimumBet} coins (10% of your balance)
+                  Cart minimum: {minimumCartTotal} coins total (10% of your balance)
                 </div>
               </div>
               
@@ -419,9 +496,9 @@ useEffect(() => {
                       <input
                         id={`amount-${game.id}`}
                         type="number"
-                        placeholder={`Minimum ${minimumBet} coins`}
+                        placeholder="Wager amount"
                         className="w-full px-3 py-2 border rounded-md text-sm"
-                        min={minimumBet}
+                        min="1"
                         max={user?.coins}
                       />
 
@@ -439,8 +516,8 @@ useEffect(() => {
                           const [team, spread] = teamSelect.value.split('|');
                           const amount = parseInt(amountInput.value);
 
-                          if (amount < minimumBet) {
-                            alert(`Minimum bet is ${minimumBet} coins`);
+                          if (amount < 1) {
+                            alert('Amount must be at least 1 coin');
                             return;
                           }
 
@@ -457,68 +534,6 @@ useEffect(() => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Cart Tab */}
-          {activeTab === 'cart' && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Shopping Cart</h2>
-                <div className="text-lg font-semibold text-green-600">
-                  Total: {cartTotal} coins
-                </div>
-              </div>
-              
-              {cart.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <ShoppingCart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p>Your cart is empty</p>
-                  <p className="text-sm mt-2">Add some wagers from the Games tab</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="bg-white shadow rounded-lg overflow-hidden">
-                    {cart.map((item) => (
-                      <div key={item.id} className="p-6 border-b last:border-b-0">
-                        <div className="flex justify-between items-center">
-                          <div className="flex-1">
-                            <h3 className="font-medium text-gray-900">{item.gameName}</h3>
-                            <p className="text-sm text-gray-600">
-                              {item.team} ({item.spread > 0 ? '+' : ''}{item.spread})
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-4">
-                            <div className="font-medium">{item.amount} coins</div>
-                            <button
-                              onClick={() => removeFromCart(item.id)}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">Total: {cartTotal} coins</p>
-                      <p className="text-sm text-gray-600">
-                        {cartTotal > user?.coins ? 'Insufficient coins!' : 'Ready to submit for approval'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={submitCart}
-                      disabled={loading || cartTotal > user?.coins || cart.length === 0}
-                      className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
-                    >
-                      Submit for Approval
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 

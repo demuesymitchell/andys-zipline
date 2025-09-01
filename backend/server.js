@@ -153,36 +153,52 @@ app.post('/api/admin/users', authenticateToken, authenticateAdmin, async (req, r
 // Get NFL games
 app.get('/api/games', authenticateToken, async (req, res) => {
   try {
+    // Updated for September 2025 NFL season opener
     const mockGames = [
       {
         id: 1,
         homeTeam: 'Kansas City Chiefs',
-        awayTeam: 'Buffalo Bills',
-        homeSpread: -3.5,
-        awaySpread: 3.5,
-        gameTime: '2024-01-28T18:00:00.000Z',
-        status: 'upcoming',
-        minimumBet: 200 // 10% of 2000 starting coins
+        awayTeam: 'Detroit Lions',
+        homeSpread: -2.5,
+        awaySpread: 2.5,
+        gameTime: '2025-09-07T17:00:00.000Z',
+        status: 'upcoming'
       },
       {
         id: 2,
-        homeTeam: 'Philadelphia Eagles',
-        awayTeam: 'San Francisco 49ers',
-        homeSpread: -1.5,
-        awaySpread: 1.5,
-        gameTime: '2024-01-28T21:30:00.000Z',
-        status: 'upcoming',
-        minimumBet: 200
+        homeTeam: 'Buffalo Bills',
+        awayTeam: 'New York Jets',
+        homeSpread: -6.5,
+        awaySpread: 6.5,
+        gameTime: '2025-09-07T20:20:00.000Z',
+        status: 'upcoming'
       },
       {
         id: 3,
+        homeTeam: 'Philadelphia Eagles',
+        awayTeam: 'Atlanta Falcons',
+        homeSpread: -3.5,
+        awaySpread: 3.5,
+        gameTime: '2025-09-07T13:00:00.000Z',
+        status: 'upcoming'
+      },
+      {
+        id: 4,
+        homeTeam: 'San Francisco 49ers',
+        awayTeam: 'Pittsburgh Steelers',
+        homeSpread: -4.5,
+        awaySpread: 4.5,
+        gameTime: '2025-09-07T16:25:00.000Z',
+        status: 'upcoming'
+      },
+      {
+        id: 5,
         homeTeam: 'Dallas Cowboys',
-        awayTeam: 'Green Bay Packers',
-        homeSpread: -2.5,
-        awaySpread: 2.5,
-        gameTime: '2024-01-29T16:00:00.000Z',
-        status: 'upcoming',
-        minimumBet: 200
+        awayTeam: 'Washington Commanders',
+        homeSpread: -7.5,
+        awaySpread: 7.5,
+        gameTime: '2025-09-07T13:00:00.000Z',
+        status: 'upcoming'
       }
     ];
 
@@ -212,12 +228,6 @@ app.post('/api/cart', authenticateToken, (req, res) => {
   const game = games.find(g => g.id === gameId);
   if (!game) {
     return res.status(404).json({ error: 'Game not found' });
-  }
-
-  // Check minimum bet (10% of current coins)
-  const minimumBet = Math.floor(user.coins * 0.1);
-  if (amount < minimumBet) {
-    return res.status(400).json({ error: `Minimum bet is ${minimumBet} coins (10% of your balance)` });
   }
 
   if (!carts[userId]) {
@@ -267,6 +277,12 @@ app.post('/api/cart/submit', authenticateToken, (req, res) => {
 
   const user = users.find(u => u.id === userId);
   const totalAmount = userCart.reduce((sum, item) => sum + item.amount, 0);
+  
+  // Check 10% minimum on total cart amount
+  const minimumCartTotal = Math.floor(user.coins * 0.1);
+  if (totalAmount < minimumCartTotal) {
+    return res.status(400).json({ error: `Cart total must be at least ${minimumCartTotal} coins (10% of your balance)` });
+  }
   
   if (user.coins < totalAmount) {
     return res.status(400).json({ error: 'Insufficient coins for all wagers' });
