@@ -392,60 +392,93 @@ const App = () => {
         </div>
       </header>
 
-      {/* NFL Teams Banner with Logos */}
-      <div className="bg-gray-800 border-b border-gray-700 py-3 overflow-hidden">
-        <div className="whitespace-nowrap">
-          <div className="inline-flex space-x-6 text-emerald-400 text-sm font-medium animate-pulse">
-            {[
-              { name: 'Arizona Cardinals', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png' },
-              { name: 'Atlanta Falcons', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png' },
-              { name: 'Baltimore Ravens', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png' },
-              { name: 'Buffalo Bills', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png' },
-              { name: 'Carolina Panthers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/car.png' },
-              { name: 'Chicago Bears', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png' },
-              { name: 'Cincinnati Bengals', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png' },
-              { name: 'Cleveland Browns', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png' },
-              { name: 'Dallas Cowboys', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png' },
-              { name: 'Denver Broncos', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/den.png' },
-              { name: 'Detroit Lions', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/det.png' },
-              { name: 'Green Bay Packers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png' },
-              { name: 'Houston Texans', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png' },
-              { name: 'Indianapolis Colts', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png' },
-              { name: 'Jacksonville Jaguars', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png' },
-              { name: 'Kansas City Chiefs', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png' },
-              { name: 'Las Vegas Raiders', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png' },
-              { name: 'Los Angeles Chargers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png' },
-              { name: 'Los Angeles Rams', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png' },
-              { name: 'Miami Dolphins', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png' },
-              { name: 'Minnesota Vikings', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/min.png' },
-              { name: 'New England Patriots', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png' },
-              { name: 'New Orleans Saints', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/no.png' },
-              { name: 'New York Giants', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png' },
-              { name: 'New York Jets', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png' },
-              { name: 'Philadelphia Eagles', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png' },
-              { name: 'Pittsburgh Steelers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png' },
-              { name: 'San Francisco 49ers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png' },
-              { name: 'Seattle Seahawks', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png' },
-              { name: 'Tampa Bay Buccaneers', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png' },
-              { name: 'Tennessee Titans', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png' },
-              { name: 'Washington Commanders', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png' }
-            ].map((team, index) => (
-              <span key={index} className="flex items-center">
-                <img 
-                  src={team.logo} 
-                  alt={team.name}
-                  className="h-6 w-6 mr-2"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'inline';
-                  }}
-                />
-                <Trophy className="h-4 w-4 mr-1 hidden" />
-                {team.name}
-              </span>
-            ))}
-          </div>
+      {/* NFL Teams Banner with Scrolling Logos */}
+      <div className="bg-gray-800 border-b border-gray-700 py-4 overflow-hidden relative">
+        <div className="flex animate-scroll whitespace-nowrap">
+          {[
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/car.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/den.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/det.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/min.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/no.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png'
+          ].concat([
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/car.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/den.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/det.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/min.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/no.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png',
+            'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png'
+          ]).map((logoUrl, index) => (
+            <img 
+              key={index}
+              src={logoUrl} 
+              alt="NFL Team"
+              className="h-10 w-10 mx-4 flex-shrink-0"
+            />
+          ))}
         </div>
+        <style jsx>{`
+          @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-scroll {
+            animation: scroll 30s linear infinite;
+          }
+        `}</style>
       </div>
 
       {/* Navigation */}
