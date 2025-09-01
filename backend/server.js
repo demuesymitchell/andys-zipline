@@ -16,14 +16,16 @@ let users = [
     username: 'admin',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
     coins: 0,
-    isAdmin: true
+    isAdmin: true,
+    hideFromLeaderboard: true
   },
   {
     id: 2,
     username: 'AndyM',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
     coins: 2000,
-    isAdmin: true
+    isAdmin: true,
+    hideFromLeaderboard: false
   }
 ];
 
@@ -87,7 +89,8 @@ app.post('/api/login', async (req, res) => {
     user: {
       id: user.id,
       username: user.username,
-      coins: user.coins
+      coins: user.coins,
+      isAdmin: user.isAdmin || false
     }
   });
 });
@@ -102,14 +105,15 @@ app.get('/api/user', authenticateToken, (req, res) => {
   res.json({
     id: user.id,
     username: user.username,
-    coins: user.coins
+    coins: user.coins,
+    isAdmin: user.isAdmin || false
   });
 });
 
-// Get leaderboard - exclude admin accounts
+// Get leaderboard - only hide admin, show AndyM
 app.get('/api/leaderboard', authenticateToken, (req, res) => {
   const leaderboard = users
-    .filter(u => !u.isAdmin) // Exclude admin accounts
+    .filter(u => !u.hideFromLeaderboard) // Only hide users marked to be hidden
     .map(u => ({
       id: u.id,
       username: u.username,
