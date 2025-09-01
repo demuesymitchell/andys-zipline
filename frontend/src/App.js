@@ -311,8 +311,7 @@ const App = () => {
             </button>
           </div>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            Demo credentials: AndyM / password
+          <div className="mt-6 text-center text-sm text-gray-600">            
           </div>
         </div>
       </div>
