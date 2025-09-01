@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, DollarSign, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, Chev
 
 const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
 
@@ -44,7 +44,7 @@ const App = () => {
   }, [token]);
 
   useEffect(() => {
-    if (user?.username === 'admin') {
+    if (user?.username === 'admin' || user?.username === 'AndyM') {
       fetchGroupedPendingWagers();
     }
   }, [user?.username]);
@@ -371,7 +371,7 @@ const App = () => {
                 {user?.username}
               </div>
               <div className="flex items-center text-sm font-medium text-green-600">
-                <DollarSign className="h-4 w-4 mr-1" />
+                <Coins className="h-4 w-4 mr-1" />
                 {user?.coins} coins
               </div>
               {cart.length > 0 && (
@@ -398,7 +398,7 @@ const App = () => {
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
-            {['games', 'wagers', 'leaderboard'].concat(user?.username === 'admin' ? ['admin'] : []).map((tab) => (
+            {['games', 'wagers', 'leaderboard'].concat(user?.username === 'admin' || user?.username === 'AndyM' ? ['admin'] : []).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -409,7 +409,7 @@ const App = () => {
                 }`}
               >
                 {tab}
-                {tab === 'admin' && user?.username === 'admin' && groupedPendingWagers.length > 0 && ` (${groupedPendingWagers.length})`}
+                {tab === 'admin' && (user?.username === 'admin' || user?.username === 'AndyM') && groupedPendingWagers.length > 0 && ` (${groupedPendingWagers.length})`}
               </button>
             ))}
           </div>
@@ -718,7 +718,7 @@ const App = () => {
           )}
 
           {/* Admin Tab */}
-          {activeTab === 'admin' && user?.username === 'admin' && (
+          {activeTab === 'admin' && (user?.username === 'admin' || user?.username === 'AndyM') && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900">Admin Panel</h2>
               

@@ -13,27 +13,15 @@ app.use(express.json());
 let users = [
   {
     id: 1,
-    username: 'testuser',
-    password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    coins: 2000
-  },
-  {
-    id: 2,
     username: 'admin',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
     coins: 5000
   },
   {
-    id: 3,
-    username: 'player2',
+    id: 2,
+    username: 'AndyM',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    coins: 1800
-  },
-  {
-    id: 4,
-    username: 'highroller',
-    password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    coins: 3200
+    coins: 2000
   }
 ];
 
@@ -59,9 +47,9 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Admin middleware
+// Admin middleware - Updated to include AndyM
 const authenticateAdmin = (req, res, next) => {
-  if (req.user.username !== 'admin') {
+  if (req.user.username !== 'admin' && req.user.username !== 'AndyM') {
     return res.sendStatus(403);
   }
   next();
@@ -150,26 +138,36 @@ app.post('/api/admin/users', authenticateToken, authenticateAdmin, async (req, r
   });
 });
 
-// Get NFL games from ESPN API
+// Get NFL games from ESPN API - FIXED for primetime games
 app.get('/api/games', authenticateToken, async (req, res) => {
   try {
     // Fetch live NFL data from ESPN
     const response = await axios.get('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
     const espnGames = response.data.events;
     
-    // Filter for Sunday games (1PM ET and later, includes 4PM, 8PM games)  
-    const sundayGames = espnGames.filter(event => {
+    // Filter for Sunday games and Monday Night Football
+    const relevantGames = espnGames.filter(event => {
       const gameDate = new Date(event.date);
-      const dayOfWeek = gameDate.getDay(); // 0 = Sunday
+      const dayOfWeek = gameDate.getDay(); // 0 = Sunday, 1 = Monday
       const hour = gameDate.getUTCHours();
       
-      // Sunday games starting at 1PM ET (17:00 UTC) or later
-      // This includes 1PM, 4PM, and 8PM games but excludes London games
-      return dayOfWeek === 0 && hour >= 17;
+      // Sunday games (1PM ET = 17:00 UTC, 4PM ET = 20:00 UTC, 8PM ET = 00:00+1 UTC)
+      // Monday Night Football (8:15 PM ET = 00:15+1 UTC on Tuesday)
+      if (dayOfWeek === 0) {
+        // Sunday: Include 1PM (17:00 UTC), 4PM (20:00 UTC), and late games
+        return hour >= 17 || hour <= 4; // Covers 8PM games that go to next day
+      } else if (dayOfWeek === 1) {
+        // Monday Night Football - usually starts around 8:15 PM ET
+        return hour >= 23 || hour <= 4; // 23:00 UTC Monday to 04:00 UTC Tuesday
+      }
+      
+      return false;
     });
 
+    console.log(`Found ${relevantGames.length} relevant NFL games`);
+
     // Convert ESPN data to our format
-    let apiGames = sundayGames.map((event, index) => {
+    let apiGames = relevantGames.map((event, index) => {
       const homeTeam = event.competitions[0].competitors.find(team => team.homeAway === 'home');
       const awayTeam = event.competitions[0].competitors.find(team => team.homeAway === 'away');
       
@@ -177,7 +175,7 @@ app.get('/api/games', authenticateToken, async (req, res) => {
         id: index + 1,
         homeTeam: homeTeam.team.displayName,
         awayTeam: awayTeam.team.displayName,
-        homeSpread: 0, // Default to 0 instead of null
+        homeSpread: 0,
         awaySpread: 0,
         gameTime: event.date,
         status: event.status.type.name === 'STATUS_SCHEDULED' ? 'upcoming' : 'active',
@@ -196,11 +194,11 @@ app.get('/api/games', authenticateToken, async (req, res) => {
     }
 
     games = apiGames;
-    res.json(games); // Return all games
+    res.json(games);
   } catch (error) {
-    console.error('Failed to fetch NFL data:', error);
+    console.error('Failed to fetch NFL data:', error.message);
     
-    // Fallback to mock games if ESPN API fails
+    // Enhanced fallback games including all time slots
     const fallbackGames = [
       {
         id: 1,
@@ -208,17 +206,37 @@ app.get('/api/games', authenticateToken, async (req, res) => {
         awayTeam: 'Detroit Lions',
         homeSpread: -2.5,
         awaySpread: 2.5,
-        gameTime: '2025-09-07T17:00:00.000Z',
+        gameTime: '2025-09-07T17:00:00.000Z', // 1:00 PM ET
         status: 'upcoming',
         spreadsSet: true
       },
       {
         id: 2,
+        homeTeam: 'Dallas Cowboys',
+        awayTeam: 'Green Bay Packers',
+        homeSpread: -3.5,
+        awaySpread: 3.5,
+        gameTime: '2025-09-07T20:25:00.000Z', // 4:25 PM ET
+        status: 'upcoming',
+        spreadsSet: true
+      },
+      {
+        id: 3,
         homeTeam: 'Buffalo Bills',
         awayTeam: 'New York Jets',
         homeSpread: -6.5,
         awaySpread: 6.5,
-        gameTime: '2025-09-08T00:20:00.000Z', // 8:20 PM ET
+        gameTime: '2025-09-08T00:20:00.000Z', // 8:20 PM ET Sunday
+        status: 'upcoming',
+        spreadsSet: true
+      },
+      {
+        id: 4,
+        homeTeam: 'Las Vegas Raiders',
+        awayTeam: 'Denver Broncos',
+        homeSpread: -1.5,
+        awaySpread: 1.5,
+        gameTime: '2025-09-09T01:15:00.000Z', // 8:15 PM ET Monday (MNF)
         status: 'upcoming',
         spreadsSet: true
       }
@@ -240,7 +258,7 @@ app.put('/api/admin/games/:id/spreads', authenticateToken, authenticateAdmin, (r
   }
 
   game.homeSpread = parseFloat(homeSpread);
-  game.awaySpread = -parseFloat(homeSpread); // Away spread is opposite of home
+  game.awaySpread = -parseFloat(homeSpread);
   game.spreadsSet = true;
 
   res.json({
