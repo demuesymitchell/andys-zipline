@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, DollarSign, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award } from 'lucide-react';
+import { User, DollarSign, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
 
@@ -11,15 +11,14 @@ const App = () => {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [pendingWagers, setPendingWagers] = useState([]);
   const [groupedPendingWagers, setGroupedPendingWagers] = useState([]);
   const [activeTab, setActiveTab] = useState('games');
   const [loading, setLoading] = useState(false);
 
   // Admin panel collapsible sections
   const [adminSections, setAdminSections] = useState({
-    spreads: true,
     pending: true,
+    spreads: false,
     createUser: false
   });
 
@@ -38,7 +37,7 @@ const App = () => {
       fetchCart();
       fetchLeaderboard();
       if (user?.username === 'admin') {
-        fetchPendingWagers();
+        fetchGroupedPendingWagers();
       }
     }
   }, [token, user?.username]);
@@ -105,12 +104,12 @@ const App = () => {
     }
   };
 
-  const fetchPendingWagers = async () => {
+  const fetchGroupedPendingWagers = async () => {
     try {
-      const pendingData = await apiCall('/admin/wagers/pending');
-      setPendingWagers(pendingData);
+      const pendingData = await apiCall('/admin/wagers/pending/grouped');
+      setGroupedPendingWagers(pendingData);
     } catch (error) {
-      console.error('Failed to fetch pending wagers:', error);
+      console.error('Failed to fetch grouped pending wagers:', error);
     }
   };
 
@@ -141,7 +140,7 @@ const App = () => {
     setWagers([]);
     setCart([]);
     setLeaderboard([]);
-    setPendingWagers([]);
+    setGroupedPendingWagers([]);
     localStorage.removeItem('token');
   };
 
@@ -189,20 +188,38 @@ const App = () => {
     setLoading(false);
   };
 
-  const handleWagerDecision = async (wagerId, decision) => {
+  const handleUserWagerDecision = async (userId, decision) => {
     setLoading(true);
 
     try {
-      await apiCall(`/admin/wagers/${wagerId}/decision`, {
+      await apiCall(`/admin/wagers/user/${userId}/decision`, {
         method: 'PUT',
         body: JSON.stringify({ decision })
       });
 
-      fetchPendingWagers();
+      fetchGroupedPendingWagers();
       fetchLeaderboard();
-      alert(`Wager ${decision} successfully!`);
+      alert(`User's wagers ${decision} successfully!`);
     } catch (error) {
       alert('Failed to process wager decision.');
+    }
+
+    setLoading(false);
+  };
+
+  const handleUpdateSpread = async (gameId, homeSpread) => {
+    setLoading(true);
+
+    try {
+      await apiCall(`/admin/games/${gameId}/spreads`, {
+        method: 'PUT',
+        body: JSON.stringify({ homeSpread })
+      });
+
+      fetchGames();
+      alert('Spread updated successfully!');
+    } catch (error) {
+      alert('Failed to update spread.');
     }
 
     setLoading(false);
@@ -227,22 +244,11 @@ const App = () => {
     setLoading(false);
   };
 
-  const handleUpdateSpread = async (gameId, homeSpread) => {
-    setLoading(true);
-
-    try {
-      await apiCall(`/admin/games/${gameId}/spreads`, {
-        method: 'PUT',
-        body: JSON.stringify({ homeSpread })
-      });
-
-      fetchGames();
-      alert('Spread updated successfully!');
-    } catch (error) {
-      alert('Failed to update spread.');
-    }
-
-    setLoading(false);
+  const toggleAdminSection = (section) => {
+    setAdminSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
   if (!token) {
@@ -392,7 +398,7 @@ const App = () => {
                 }`}
               >
                 {tab}
-                {tab === 'admin' && user?.username === 'admin' && pendingWagers.length > 0 && ` (${pendingWagers.length})`}
+                {tab === 'admin' && user?.username === 'admin' && groupedPendingWagers.length > 0 && ` (${groupedPendingWagers.length})`}
               </button>
             ))}
           </div>
@@ -421,7 +427,7 @@ const App = () => {
                 <div className="space-y-4">
                   {cart.map((item) => (
                     <div key={item.id} className="border border-gray-200 rounded-lg p-4">
-                                              <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h3 className="font-medium text-gray-900">{item.gameName}</h3>
                           <p className="text-sm text-gray-600">
@@ -485,81 +491,139 @@ const App = () => {
                 </div>
               </div>
               
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {games.map((game) => (
-                  <div key={game.id} className="bg-white rounded-lg shadow p-6">
-                    <div className="text-center mb-4">
-                      <div className="text-sm text-gray-500 mb-2">
-                        <Calendar className="inline h-4 w-4 mr-1" />
-                        {formatDate(game.gameTime)}
+              {/* Group games by time slots */}
+              {(() => {
+                // Group games by time slot
+                const timeSlots = {
+                  '1:00 PM ET': [],
+                  '4:05 PM ET': [],
+                  '4:25 PM ET': [], 
+                  '8:20 PM ET': []
+                };
+
+                games.forEach(game => {
+                  const gameTime = new Date(game.gameTime);
+                  const hour = gameTime.getUTCHours();
+                  const minute = gameTime.getUTCMinutes();
+                  
+                  // Convert UTC to ET and categorize
+                  if (hour === 17 && minute === 0) {
+                    timeSlots['1:00 PM ET'].push(game);
+                  } else if (hour === 20 && minute === 5) {
+                    timeSlots['4:05 PM ET'].push(game);
+                  } else if (hour === 20 && minute === 25) {
+                    timeSlots['4:25 PM ET'].push(game);
+                  } else if (hour === 0 && minute === 20) {
+                    timeSlots['8:20 PM ET'].push(game);
+                  } else {
+                    // Default grouping based on hour
+                    if (hour >= 17 && hour < 20) {
+                      timeSlots['1:00 PM ET'].push(game);
+                    } else if (hour >= 20 && hour < 23) {
+                      timeSlots['4:25 PM ET'].push(game);
+                    } else {
+                      timeSlots['8:20 PM ET'].push(game);
+                    }
+                  }
+                });
+
+                return Object.entries(timeSlots).map(([timeSlot, slotGames]) => (
+                  slotGames.length > 0 && (
+                    <div key={timeSlot} className="space-y-4">
+                      <div className="border-b border-gray-200 pb-2">
+                        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                          <Calendar className="h-5 w-5 mr-2 text-green-600" />
+                          {timeSlot} Games
+                        </h3>
                       </div>
-                      <div className="font-semibold text-lg">
-                        {game.awayTeam} @ {game.homeTeam}
+                      
+                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {slotGames.map((game) => (
+                          <div key={game.id} className="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+                            <div className="text-center mb-4">
+                              <div className="text-sm text-gray-500 mb-2">
+                                <Calendar className="inline h-4 w-4 mr-1" />
+                                {formatDate(game.gameTime)}
+                              </div>
+                              <div className="font-semibold text-lg">
+                                {game.awayTeam} @ {game.homeTeam}
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                <span className="text-sm">{game.awayTeam}</span>
+                                <span className="font-medium">+{Math.abs(game.awaySpread)}</span>
+                              </div>
+                              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                <span className="text-sm">{game.homeTeam}</span>
+                                <span className="font-medium">{game.homeSpread}</span>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 space-y-3">
+                              <select 
+                                id={`team-select-${game.id}`}
+                                className="w-full px-3 py-2 border rounded-md text-sm"
+                              >
+                                <option value="">Select team</option>
+                                <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
+                                <option value={`${game.awayTeam}|${game.awaySpread}`}>{game.awayTeam} (+{Math.abs(game.awaySpread)})</option>
+                              </select>
+
+                              <input
+                                id={`amount-${game.id}`}
+                                type="number"
+                                placeholder="Wager amount"
+                                className="w-full px-3 py-2 border rounded-md text-sm"
+                                min="1"
+                                max={user?.coins}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const teamSelect = document.getElementById(`team-select-${game.id}`);
+                                  const amountInput = document.getElementById(`amount-${game.id}`);
+                                  
+                                  if (!teamSelect.value || !amountInput.value) {
+                                    alert('Please select a team and enter an amount');
+                                    return;
+                                  }
+
+                                  const [team, spread] = teamSelect.value.split('|');
+                                  const amount = parseInt(amountInput.value);
+
+                                  if (amount < 1) {
+                                    alert('Amount must be at least 1 coin');
+                                    return;
+                                  }
+
+                                  addToCart(game.id, team, amount, parseFloat(spread));
+                                  teamSelect.value = '';
+                                  amountInput.value = '';
+                                }}
+                                disabled={loading}
+                                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 text-sm"
+                              >
+                                Add to Cart
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{game.awayTeam}</span>
-                        <span className="font-medium">+{game.awaySpread}</span>
-                      </div>
-                      <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{game.homeTeam}</span>
-                        <span className="font-medium">{game.homeSpread}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 space-y-3">
-                      <select 
-                        id={`team-select-${game.id}`}
-                        className="w-full px-3 py-2 border rounded-md text-sm"
-                      >
-                        <option value="">Select team</option>
-                        <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
-                        <option value={`${game.awayTeam}|${game.awaySpread}`}>{game.awayTeam} (+{game.awaySpread})</option>
-                      </select>
-
-                      <input
-                        id={`amount-${game.id}`}
-                        type="number"
-                        placeholder="Wager amount"
-                        className="w-full px-3 py-2 border rounded-md text-sm"
-                        min="1"
-                        max={user?.coins}
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const teamSelect = document.getElementById(`team-select-${game.id}`);
-                          const amountInput = document.getElementById(`amount-${game.id}`);
-                          
-                          if (!teamSelect.value || !amountInput.value) {
-                            alert('Please select a team and enter an amount');
-                            return;
-                          }
-
-                          const [team, spread] = teamSelect.value.split('|');
-                          const amount = parseInt(amountInput.value);
-
-                          if (amount < 1) {
-                            alert('Amount must be at least 1 coin');
-                            return;
-                          }
-
-                          addToCart(game.id, team, amount, parseFloat(spread));
-                          teamSelect.value = '';
-                          amountInput.value = '';
-                        }}
-                        disabled={loading}
-                        className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 text-sm"
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  )
+                ));
+              })()}
+              
+              {games.length === 0 && (
+                <div className="text-center py-12">
+                  <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <p className="text-gray-500 text-lg">No games available</p>
+                  <p className="text-gray-400 text-sm">Games will appear here once loaded from ESPN</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -647,161 +711,91 @@ const App = () => {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900">Admin Panel</h2>
               
-              {/* Game Spreads Management */}
-              <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Set Game Spreads
-                </h3>
-                <div className="space-y-4">
-                  {games.map((game) => (
-                    <div key={game.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-center">
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">
-                            Game #{game.id}: {game.awayTeam} @ {game.homeTeam}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {formatDate(game.gameTime)}
-                          </p>
-                          {game.spreadsSet && (
-                            <p className="text-sm text-green-600">
-                              Current spread: {game.homeTeam} {game.homeSpread}, {game.awayTeam} +{Math.abs(game.homeSpread)}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id={`spread-${game.id}`}
-                            type="number"
-                            step="0.5"
-                            placeholder="Home spread"
-                            defaultValue={game.homeSpread || ''}
-                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
-                          />
-                          <button
-                            onClick={() => {
-                              const spreadInput = document.getElementById(`spread-${game.id}`);
-                              const spread = parseFloat(spreadInput.value);
-                              if (isNaN(spread)) {
-                                alert('Please enter a valid spread');
-                                return;
-                              }
-                              handleUpdateSpread(game.id, spread);
-                            }}
-                            disabled={loading}
-                            className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
-                          >
-                            Set
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {games.length === 0 && (
-                    <p className="text-gray-500">No games available. Games load automatically from ESPN API.</p>
-                  )}
+              {/* Pending Wagers - Collapsible */}
+              <div className="bg-white shadow rounded-lg">
+                <div 
+                  className="p-6 border-b cursor-pointer flex justify-between items-center hover:bg-gray-50"
+                  onClick={() => toggleAdminSection('pending')}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Pending Wagers ({groupedPendingWagers.length})
+                  </h3>
+                  {adminSections.pending ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                 </div>
-              </div>
-
-              {/* Pending Wagers */}
-              <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Pending Wagers ({pendingWagers.length})
-                </h3>
-                {pendingWagers.length === 0 ? (
-                  <p className="text-gray-500">No pending wagers</p>
-                ) : (
-                  <div className="space-y-4">
-                    {pendingWagers.map((wager) => (
-                      <div key={wager.id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium">{wager.username}</p>
-                            <p className="text-sm text-gray-600">
-                              {wager.gameName} - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread})
-                            </p>
-                            <p className="text-sm text-gray-500">{wager.amount} coins</p>
+                
+                {adminSections.pending && (
+                  <div className="p-6">
+                    {groupedPendingWagers.length === 0 ? (
+                      <p className="text-gray-500">No pending wagers</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {groupedPendingWagers.map((userGroup) => (
+                          <div key={userGroup.userId} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h4 className="font-medium text-lg">{userGroup.username}</h4>
+                                <p className="text-sm text-gray-500">
+                                  {userGroup.wagers.length} wagers • Total: {userGroup.totalAmount} coins
+                                </p>
+                              </div>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'approved')}
+                                  disabled={loading}
+                                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center"
+                                >
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Approve All
+                                </button>
+                                <button
+                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'rejected')}
+                                  disabled={loading}
+                                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject All
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              {userGroup.wagers.map((wager) => (
+                                <div key={wager.id} className="bg-gray-50 p-3 rounded text-sm">
+                                  <strong>{wager.gameName}</strong> - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread}) - {wager.amount} coins
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleWagerDecision(wager.id, 'approved')}
-                              disabled={loading}
-                              className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center"
-                            >
-                              <Check className="h-4 w-4 mr-1" />
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => handleWagerDecision(wager.id, 'rejected')}
-                              disabled={loading}
-                              className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Reject
-                            </button>
-                          </div>
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* Create New User */}
-              <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Create New User</h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Username
-                      </label>
-                      <input
-                        type="text"
-                        value={adminForm.username}
-                        onChange={(e) => setAdminForm({...adminForm, username: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        value={adminForm.password}
-                        onChange={(e) => setAdminForm({...adminForm, password: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleCreateUser}
-                    disabled={loading}
-                    className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create User
-                  </button>
+              {/* Game Spreads - Collapsible */}
+              <div className="bg-white shadow rounded-lg">
+                <div 
+                  className="p-6 border-b cursor-pointer flex justify-between items-center hover:bg-gray-50"
+                  onClick={() => toggleAdminSection('spreads')}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Set Game Spreads
+                  </h3>
+                  {adminSections.spreads ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'admin' && user?.username !== 'admin' && (
-            <div className="text-center py-8">
-              <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
-              <p className="text-gray-500">You don't have admin privileges.</p>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
-  );
-};
-
-export default App;
+                
+                {adminSections.spreads && (
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      {games.map((game) => (
+                        <div key={game.id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">
+                                Game #{game.id}: {game.awayTeam} @ {game.homeTeam}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {formatDate(game.gameTime)}
+                              </p>
+                              {game.spreadsSet
