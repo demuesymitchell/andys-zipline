@@ -15,13 +15,15 @@ let users = [
     id: 1,
     username: 'admin',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    coins: 5000
+    coins: 0,
+    isAdmin: true
   },
   {
     id: 2,
     username: 'AndyM',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    coins: 2000
+    coins: 0,
+    isAdmin: true
   }
 ];
 
@@ -101,9 +103,10 @@ app.get('/api/user', authenticateToken, (req, res) => {
   });
 });
 
-// Get leaderboard
+// Get leaderboard - exclude admin accounts
 app.get('/api/leaderboard', authenticateToken, (req, res) => {
   const leaderboard = users
+    .filter(u => !u.isAdmin) // Exclude admin accounts
     .map(u => ({
       id: u.id,
       username: u.username,
@@ -114,7 +117,7 @@ app.get('/api/leaderboard', authenticateToken, (req, res) => {
   res.json(leaderboard);
 });
 
-// Admin: Create user
+// Admin: Create user - also exclude admins from new user creation
 app.post('/api/admin/users', authenticateToken, authenticateAdmin, async (req, res) => {
   const { username, password } = req.body;
   
@@ -127,7 +130,8 @@ app.post('/api/admin/users', authenticateToken, authenticateAdmin, async (req, r
     id: users.length + 1,
     username,
     password: hashedPassword,
-    coins: 2000
+    coins: 2000,
+    isAdmin: false // Regular users are not admins
   };
 
   users.push(newUser);
@@ -329,12 +333,16 @@ app.post('/api/cart/submit', authenticateToken, (req, res) => {
   const userId = req.user.userId;
   const userCart = carts[userId] || [];
   
+  console.log(`Cart submission attempt by user ${userId}:`, userCart);
+  
   if (userCart.length === 0) {
     return res.status(400).json({ error: 'Cart is empty' });
   }
 
   const user = users.find(u => u.id === userId);
   const totalAmount = userCart.reduce((sum, item) => sum + item.amount, 0);
+  
+  console.log(`User ${user.username} submitting ${userCart.length} wagers for ${totalAmount} total coins`);
   
   // Check 10% minimum on total cart amount
   const minimumCartTotal = Math.floor(user.coins * 0.1);
@@ -360,11 +368,14 @@ app.post('/api/cart/submit', authenticateToken, (req, res) => {
       submittedAt: new Date().toISOString()
     };
     wagers.push(wager);
+    console.log('Created wager:', wager);
   });
 
   // Clear cart
   carts[userId] = [];
 
+  console.log(`Total wagers in system: ${wagers.length}`);
+  
   res.json({ message: 'Wagers submitted for approval', count: userCart.length });
 });
 
@@ -376,12 +387,18 @@ app.get('/api/wagers', authenticateToken, (req, res) => {
 
 // Admin: Get grouped pending wagers (by user)
 app.get('/api/admin/wagers/pending/grouped', authenticateToken, authenticateAdmin, (req, res) => {
+  console.log(`Admin ${req.user.username} requesting pending wagers`);
+  console.log(`Total wagers in system: ${wagers.length}`);
+  
   const pendingWagers = wagers.filter(w => w.status === 'pending_approval');
+  console.log(`Pending wagers found: ${pendingWagers.length}`, pendingWagers);
   
   // Group wagers by user
   const groupedWagers = pendingWagers.reduce((groups, wager) => {
     const user = users.find(u => u.id === wager.userId);
     const game = games.find(g => g.id === wager.gameId);
+    
+    console.log(`Processing wager for user ID ${wager.userId}, found user:`, user?.username);
     
     const userId = wager.userId;
     if (!groups[userId]) {
@@ -407,6 +424,8 @@ app.get('/api/admin/wagers/pending/grouped', authenticateToken, authenticateAdmi
   const groupedArray = Object.values(groupedWagers).sort((a, b) => 
     new Date(a.submittedAt) - new Date(b.submittedAt)
   );
+  
+  console.log(`Returning ${groupedArray.length} grouped pending wagers`);
   
   res.json(groupedArray);
 });
