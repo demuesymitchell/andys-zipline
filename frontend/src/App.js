@@ -219,6 +219,24 @@ const App = () => {
     setLoading(false);
   };
 
+  const handleUpdateSpread = async (gameId, homeSpread) => {
+    setLoading(true);
+
+    try {
+      await apiCall(`/admin/games/${gameId}/spreads`, {
+        method: 'PUT',
+        body: JSON.stringify({ homeSpread })
+      });
+
+      fetchGames();
+      alert('Spread updated successfully!');
+    } catch (error) {
+      alert('Failed to update spread.');
+    }
+
+    setLoading(false);
+  };
+
   if (!token) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 to-blue-800 flex items-center justify-center p-4">
@@ -621,6 +639,62 @@ const App = () => {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900">Admin Panel</h2>
               
+              {/* Game Spreads Management */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Set Game Spreads
+                </h3>
+                <div className="space-y-4">
+                  {games.map((game) => (
+                    <div key={game.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">
+                            Game #{game.id}: {game.awayTeam} @ {game.homeTeam}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {formatDate(game.gameTime)}
+                          </p>
+                          {game.spreadsSet && (
+                            <p className="text-sm text-green-600">
+                              Current spread: {game.homeTeam} {game.homeSpread}, {game.awayTeam} +{Math.abs(game.homeSpread)}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id={`spread-${game.id}`}
+                            type="number"
+                            step="0.5"
+                            placeholder="Home spread"
+                            defaultValue={game.homeSpread || ''}
+                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                          />
+                          <button
+                            onClick={() => {
+                              const spreadInput = document.getElementById(`spread-${game.id}`);
+                              const spread = parseFloat(spreadInput.value);
+                              if (isNaN(spread)) {
+                                alert('Please enter a valid spread');
+                                return;
+                              }
+                              handleUpdateSpread(game.id, spread);
+                            }}
+                            disabled={loading}
+                            className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
+                          >
+                            Set
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {games.length === 0 && (
+                    <p className="text-gray-500">No games available. Games load automatically from ESPN API.</p>
+                  )}
+                </div>
+              </div>
+
               {/* Pending Wagers */}
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">

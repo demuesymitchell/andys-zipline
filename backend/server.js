@@ -150,63 +150,78 @@ app.post('/api/admin/users', authenticateToken, authenticateAdmin, async (req, r
   });
 });
 
-// Get NFL games
+// Get NFL games from ESPN API
 app.get('/api/games', authenticateToken, async (req, res) => {
   try {
-    // Updated for September 2025 NFL season opener
-    const mockGames = [
-      {
-        id: 1,
-        homeTeam: 'Kansas City Chiefs',
-        awayTeam: 'Detroit Lions',
-        homeSpread: -2.5,
-        awaySpread: 2.5,
-        gameTime: '2025-09-07T17:00:00.000Z',
-        status: 'upcoming'
-      },
-      {
-        id: 2,
-        homeTeam: 'Buffalo Bills',
-        awayTeam: 'New York Jets',
-        homeSpread: -6.5,
-        awaySpread: 6.5,
-        gameTime: '2025-09-07T20:20:00.000Z',
-        status: 'upcoming'
-      },
-      {
-        id: 3,
-        homeTeam: 'Philadelphia Eagles',
-        awayTeam: 'Atlanta Falcons',
-        homeSpread: -3.5,
-        awaySpread: 3.5,
-        gameTime: '2025-09-07T13:00:00.000Z',
-        status: 'upcoming'
-      },
-      {
-        id: 4,
-        homeTeam: 'San Francisco 49ers',
-        awayTeam: 'Pittsburgh Steelers',
-        homeSpread: -4.5,
-        awaySpread: 4.5,
-        gameTime: '2025-09-07T16:25:00.000Z',
-        status: 'upcoming'
-      },
-      {
-        id: 5,
-        homeTeam: 'Dallas Cowboys',
-        awayTeam: 'Washington Commanders',
-        homeSpread: -7.5,
-        awaySpread: 7.5,
-        gameTime: '2025-09-07T13:00:00.000Z',
-        status: 'upcoming'
-      }
-    ];
+    // Fetch live NFL data from ESPN
+    const response = await axios.get('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
+    const espnGames = response.data.events;
+    
+    // Filter for Sunday games only (1PM ET and later)
+    const sundayGames = espnGames.filter(event => {
+      const gameDate = new Date(event.date);
+      const dayOfWeek = gameDate.getDay(); // 0 = Sunday
+      const hour = gameDate.getUTCHours();
+      
+      // Sunday games starting at 1PM ET (17:00 UTC) or later
+      return dayOfWeek === 0 && hour >= 17;
+    });
 
-    games = mockGames;
-    res.json(mockGames);
+    // Convert ESPN data to our format
+    let apiGames = sundayGames.map((event, index) => {
+      const homeTeam = event.competitions[0].competitors.find(team => team.homeAway === 'home');
+      const awayTeam = event.competitions[0].competitors.find(team => team.homeAway === 'away');
+      
+      return {
+        id: index + 1,
+        homeTeam: homeTeam.team.displayName,
+        awayTeam: awayTeam.team.displayName,
+        homeSpread: null, // Admin will set these
+        awaySpread: null,
+        gameTime: event.date,
+        status: event.status.type.name === 'STATUS_SCHEDULED' ? 'upcoming' : 'active',
+        spreadsSet: false
+      };
+    });
+
+    // Merge with existing games that have spreads set
+    if (games.length > 0) {
+      apiGames = apiGames.map(apiGame => {
+        const existingGame = games.find(g => 
+          g.homeTeam === apiGame.homeTeam && g.awayTeam === apiGame.awayTeam
+        );
+        return existingGame || apiGame;
+      });
+    }
+
+    games = apiGames;
+    res.json(games);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch games' });
+    console.error('Failed to fetch NFL data:', error);
+    
+    // Return existing games if API fails
+    res.json(games);
   }
+});
+
+// Admin: Set spreads for games
+app.put('/api/admin/games/:id/spreads', authenticateToken, authenticateAdmin, (req, res) => {
+  const { homeSpread } = req.body;
+  const gameId = parseInt(req.params.id);
+  
+  const game = games.find(g => g.id === gameId);
+  if (!game) {
+    return res.status(404).json({ error: 'Game not found' });
+  }
+
+  game.homeSpread = parseFloat(homeSpread);
+  game.awaySpread = -parseFloat(homeSpread); // Away spread is opposite of home
+  game.spreadsSet = true;
+
+  res.json({
+    message: 'Spreads updated successfully',
+    game
+  });
 });
 
 // Cart management
