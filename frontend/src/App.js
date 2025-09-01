@@ -44,9 +44,9 @@ const App = () => {
   }, [token]);
 
   useEffect(() => {
-    console.log('User data:', user); // Debug log
+    console.log('User data:', user);
     if (user?.isAdmin) {
-      console.log('Fetching pending wagers for admin:', user.username); // Debug log
+      console.log('Fetching pending wagers for admin:', user.username);
       fetchGroupedPendingWagers();
     }
   }, [user?.isAdmin]);
@@ -506,7 +506,6 @@ const App = () => {
               
               {/* Group games by time slots */}
               {(() => {
-                // Group games by time slot
                 const timeSlots = {
                   '1:00 PM ET': [],
                   '4:05 PM ET': [],
@@ -519,7 +518,6 @@ const App = () => {
                   const hour = gameTime.getUTCHours();
                   const minute = gameTime.getUTCMinutes();
                   
-                  // Convert UTC to ET and categorize
                   if (hour === 17 && minute === 0) {
                     timeSlots['1:00 PM ET'].push(game);
                   } else if (hour === 20 && minute === 5) {
@@ -529,7 +527,6 @@ const App = () => {
                   } else if (hour === 0 && minute === 20) {
                     timeSlots['8:20 PM ET'].push(game);
                   } else {
-                    // Default grouping based on hour
                     if (hour >= 17 && hour < 20) {
                       timeSlots['1:00 PM ET'].push(game);
                     } else if (hour >= 20 && hour < 23) {
@@ -750,3 +747,167 @@ const App = () => {
                                 <p className="text-sm text-gray-500">
                                   {userGroup.wagers.length} wagers • Total: {userGroup.totalAmount} coins
                                 </p>
+                              </div>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'approved')}
+                                  disabled={loading}
+                                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center"
+                                >
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Approve All
+                                </button>
+                                <button
+                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'rejected')}
+                                  disabled={loading}
+                                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject All
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              {userGroup.wagers.map((wager) => (
+                                <div key={wager.id} className="bg-gray-50 p-3 rounded text-sm">
+                                  <strong>{wager.gameName}</strong> - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread}) - {wager.amount} coins
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Game Spreads - Collapsible */}
+              <div className="bg-white shadow rounded-lg">
+                <div 
+                  className="p-6 border-b cursor-pointer flex justify-between items-center hover:bg-gray-50"
+                  onClick={() => toggleAdminSection('spreads')}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Set Game Spreads
+                  </h3>
+                  {adminSections.spreads ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </div>
+                
+                {adminSections.spreads && (
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      {games.map((game) => (
+                        <div key={game.id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">
+                                Game #{game.id}: {game.awayTeam} @ {game.homeTeam}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {formatDate(game.gameTime)}
+                              </p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Current spread: {game.homeTeam} {game.homeSpread} / {game.awayTeam} +{Math.abs(game.awaySpread)}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2 ml-4">
+                              <input
+                                id={`spread-${game.id}`}
+                                type="number"
+                                step="0.5"
+                                placeholder="Home spread"
+                                className="w-24 px-2 py-1 border rounded text-sm"
+                                defaultValue={game.homeSpread}
+                              />
+                              <button
+                                onClick={() => {
+                                  const spreadInput = document.getElementById(`spread-${game.id}`);
+                                  const newSpread = parseFloat(spreadInput.value);
+                                  if (isNaN(newSpread)) {
+                                    alert('Please enter a valid number');
+                                    return;
+                                  }
+                                  handleUpdateSpread(game.id, newSpread);
+                                }}
+                                disabled={loading}
+                                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+                              >
+                                Update
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {games.length === 0 && (
+                        <p className="text-gray-500">No games available to set spreads</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Create User - Collapsible */}
+              <div className="bg-white shadow rounded-lg">
+                <div 
+                  className="p-6 border-b cursor-pointer flex justify-between items-center hover:bg-gray-50"
+                  onClick={() => toggleAdminSection('createUser')}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Create New User
+                  </h3>
+                  {adminSections.createUser ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </div>
+                
+                {adminSections.createUser && (
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Username
+                        </label>
+                        <input
+                          type="text"
+                          value={adminForm.username}
+                          onChange={(e) => setAdminForm({...adminForm, username: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter username"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Password
+                        </label>
+                        <input
+                          type="password"
+                          value={adminForm.password}
+                          onChange={(e) => setAdminForm({...adminForm, password: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter password"
+                        />
+                      </div>
+
+                      <button
+                        onClick={handleCreateUser}
+                        disabled={loading || !adminForm.username || !adminForm.password}
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create User
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default App;
