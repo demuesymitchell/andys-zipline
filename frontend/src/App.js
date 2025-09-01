@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, Chev
-
+import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, ChevronDown, ChevronUp } from 'lucide-react';
 const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
 
 const App = () => {
