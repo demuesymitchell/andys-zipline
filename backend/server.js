@@ -397,6 +397,9 @@ app.get('/api/admin/wagers/pending/grouped', authenticateToken, authenticateAdmi
   console.log(`Admin ${req.user.username} requesting pending wagers`);
   console.log(`Total wagers in system: ${wagers.length}`);
   
+  // Debug: Show all wagers and their statuses
+  console.log('All wagers:', wagers.map(w => ({ id: w.id, userId: w.userId, status: w.status, amount: w.amount })));
+  
   const pendingWagers = wagers.filter(w => w.status === 'pending_approval');
   console.log(`Pending wagers found: ${pendingWagers.length}`, pendingWagers);
   
