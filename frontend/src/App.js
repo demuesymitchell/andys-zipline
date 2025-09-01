@@ -12,8 +12,16 @@ const App = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [pendingWagers, setPendingWagers] = useState([]);
+  const [groupedPendingWagers, setGroupedPendingWagers] = useState([]);
   const [activeTab, setActiveTab] = useState('games');
   const [loading, setLoading] = useState(false);
+
+  // Admin panel collapsible sections
+  const [adminSections, setAdminSections] = useState({
+    spreads: true,
+    pending: true,
+    createUser: false
+  });
 
   // Login form state
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });

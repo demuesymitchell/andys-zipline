@@ -157,13 +157,14 @@ app.get('/api/games', authenticateToken, async (req, res) => {
     const response = await axios.get('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
     const espnGames = response.data.events;
     
-    // Filter for Sunday games only (1PM ET and later)
+    // Filter for Sunday games (1PM ET and later, includes 4PM, 8PM games)
     const sundayGames = espnGames.filter(event => {
       const gameDate = new Date(event.date);
       const dayOfWeek = gameDate.getDay(); // 0 = Sunday
       const hour = gameDate.getUTCHours();
       
       // Sunday games starting at 1PM ET (17:00 UTC) or later
+      // This includes 1PM, 4PM, and 8PM games but excludes London games (usually 9:30am ET)
       return dayOfWeek === 0 && hour >= 17;
     });
 
@@ -195,13 +196,22 @@ app.get('/api/games', authenticateToken, async (req, res) => {
     }
 
     games = apiGames;
-    res.json(games);
+    
+    // Only return games with spreads set to regular users
+    const gamesForUsers = games.filter(game => game.spreadsSet);
+    res.json(gamesForUsers);
   } catch (error) {
     console.error('Failed to fetch NFL data:', error);
     
-    // Return existing games if API fails
-    res.json(games);
+    // Return existing games with spreads set if API fails
+    const gamesForUsers = games.filter(game => game.spreadsSet);
+    res.json(gamesForUsers);
   }
+});
+
+// Admin: Get all games (including those without spreads)
+app.get('/api/admin/games', authenticateToken, authenticateAdmin, (req, res) => {
+  res.json(games);
 });
 
 // Admin: Set spreads for games
@@ -331,54 +341,79 @@ app.get('/api/wagers', authenticateToken, (req, res) => {
   res.json(userWagers);
 });
 
-// Admin: Get all pending wagers
-app.get('/api/admin/wagers/pending', authenticateToken, authenticateAdmin, (req, res) => {
-  const pendingWagers = wagers
-    .filter(w => w.status === 'pending_approval')
-    .map(w => {
-      const user = users.find(u => u.id === w.userId);
-      const game = games.find(g => g.id === w.gameId);
-      return {
-        ...w,
-        username: user?.username,
-        gameName: game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Unknown Game'
-      };
-    });
+// Admin: Get grouped pending wagers (by user)
+app.get('/api/admin/wagers/pending/grouped', authenticateToken, authenticateAdmin, (req, res) => {
+  const pendingWagers = wagers.filter(w => w.status === 'pending_approval');
   
-  res.json(pendingWagers);
+  // Group wagers by user
+  const groupedWagers = pendingWagers.reduce((groups, wager) => {
+    const user = users.find(u => u.id === wager.userId);
+    const game = games.find(g => g.id === wager.gameId);
+    
+    const userId = wager.userId;
+    if (!groups[userId]) {
+      groups[userId] = {
+        userId: userId,
+        username: user?.username || 'Unknown User',
+        wagers: [],
+        totalAmount: 0,
+        submittedAt: wager.submittedAt
+      };
+    }
+    
+    groups[userId].wagers.push({
+      ...wager,
+      gameName: game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Unknown Game'
+    });
+    groups[userId].totalAmount += wager.amount;
+    
+    return groups;
+  }, {});
+  
+  // Convert to array and sort by submission time
+  const groupedArray = Object.values(groupedWagers).sort((a, b) => 
+    new Date(a.submittedAt) - new Date(b.submittedAt)
+  );
+  
+  res.json(groupedArray);
 });
 
-// Admin: Approve/Reject wager
-app.put('/api/admin/wagers/:id/decision', authenticateToken, authenticateAdmin, (req, res) => {
+// Admin: Approve/Reject multiple wagers (user's entire cart)
+app.put('/api/admin/wagers/user/:userId/decision', authenticateToken, authenticateAdmin, (req, res) => {
   const { decision } = req.body; // 'approved' or 'rejected'
-  const wagerId = parseInt(req.params.id);
+  const userId = parseInt(req.params.userId);
   
-  const wager = wagers.find(w => w.id === wagerId);
-  if (!wager) {
-    return res.status(404).json({ error: 'Wager not found' });
+  const userWagers = wagers.filter(w => w.userId === userId && w.status === 'pending_approval');
+  if (userWagers.length === 0) {
+    return res.status(404).json({ error: 'No pending wagers found for this user' });
   }
 
-  const user = users.find(u => u.id === wager.userId);
+  const user = users.find(u => u.id === userId);
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
 
+  const totalAmount = userWagers.reduce((sum, wager) => sum + wager.amount, 0);
+
+  userWagers.forEach(wager => {
+    if (decision === 'approved') {
+      wager.status = 'active';
+      wager.approvedAt = new Date().toISOString();
+    } else if (decision === 'rejected') {
+      wager.status = 'rejected';
+      wager.rejectedAt = new Date().toISOString();
+    }
+  });
+
+  // Only deduct coins if approved
   if (decision === 'approved') {
-    // Deduct coins and mark as active
-    user.coins -= wager.amount;
-    wager.status = 'active';
-    wager.approvedAt = new Date().toISOString();
-  } else if (decision === 'rejected') {
-    wager.status = 'rejected';
-    wager.rejectedAt = new Date().toISOString();
-  } else {
-    return res.status(400).json({ error: 'Invalid decision' });
+    user.coins -= totalAmount;
   }
 
   res.json({ 
-    wager, 
-    userCoins: user.coins,
-    message: `Wager ${decision} successfully` 
+    message: `${userWagers.length} wagers ${decision} successfully`,
+    totalAmount,
+    userCoins: user.coins
   });
 });
 
