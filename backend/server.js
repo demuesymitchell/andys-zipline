@@ -51,9 +51,12 @@ const authenticateToken = (req, res, next) => {
 
 // Admin middleware - Updated to include AndyM
 const authenticateAdmin = (req, res, next) => {
+  console.log('Admin auth check for user:', req.user.username); // Debug log
   if (req.user.username !== 'admin' && req.user.username !== 'AndyM') {
-    return res.sendStatus(403);
+    console.log('Access denied for user:', req.user.username); // Debug log
+    return res.status(403).json({ error: 'Access denied: Admin privileges required' });
   }
+  console.log('Admin access granted for:', req.user.username); // Debug log
   next();
 };
 
