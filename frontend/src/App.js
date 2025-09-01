@@ -304,7 +304,7 @@ const App = () => {
             <button
               type="button"
               onClick={handleLogin}
-              disabled={loading}
+              disabled={loading || !loginForm.username || !loginForm.password}
               className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
             >
               {loading ? 'Logging in...' : 'Login'}
@@ -359,7 +359,9 @@ const App = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Trophy className="h-8 w-8 text-emerald-500 mr-3" />
+              <div className="bg-blue-600 text-white px-2 py-1 rounded font-bold text-lg mr-3">
+                AZ
+              </div>
               <h1 className="text-xl font-bold text-white">Andy's Zipline</h1>
             </div>
 
