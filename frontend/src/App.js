@@ -4,7 +4,12 @@ import { User, DollarSign, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Ch
 const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
 
 const App = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('token');
+    }
+    return null;
+  });
   const [user, setUser] = useState(null);
   const [games, setGames] = useState([]);
   const [wagers, setWagers] = useState([]);
@@ -28,7 +33,6 @@ const App = () => {
   // Admin form state
   const [adminForm, setAdminForm] = useState({ username: '', password: '' });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (token) {
       fetchUserData();
@@ -36,11 +40,14 @@ const App = () => {
       fetchWagers();
       fetchCart();
       fetchLeaderboard();
-      if (user?.username === 'admin') {
-        fetchGroupedPendingWagers();
-      }
     }
-  }, [token, user?.username]);
+  }, [token]);
+
+  useEffect(() => {
+    if (user?.username === 'admin') {
+      fetchGroupedPendingWagers();
+    }
+  }, [user?.username]);
 
   const apiCall = async (endpoint, options = {}) => {
     const config = {
@@ -124,7 +131,9 @@ const App = () => {
       
       setToken(response.token);
       setUser(response.user);
-      localStorage.setItem('token', response.token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', response.token);
+      }
       setLoginForm({ username: '', password: '' });
     } catch (error) {
       alert('Login failed. Please check your credentials.');
@@ -141,7 +150,9 @@ const App = () => {
     setCart([]);
     setLeaderboard([]);
     setGroupedPendingWagers([]);
-    localStorage.removeItem('token');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
   };
 
   const addToCart = async (gameId, team, amount, spread) => {
@@ -483,7 +494,7 @@ const App = () => {
           
           {/* Games Tab */}
           {activeTab === 'games' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Available Games</h2>
                 <div className="text-sm text-gray-600">
@@ -748,4 +759,156 @@ const App = () => {
                                   Approve All
                                 </button>
                                 <button
-                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'rejecte
+                                  onClick={() => handleUserWagerDecision(userGroup.userId, 'rejected')}
+                                  disabled={loading}
+                                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject All
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              {userGroup.wagers.map((wager) => (
+                                <div key={wager.id} className="bg-gray-50 p-3 rounded text-sm">
+                                  <strong>{wager.gameName}</strong> - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread}) - {wager.amount} coins
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Game Spreads - Collapsible */}
+              <div className="bg-white shadow rounded-lg">
+                <div 
+                  className="p-6 border-b cursor-pointer flex justify-between items-center hover:bg-gray-50"
+                  onClick={() => toggleAdminSection('spreads')}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Set Game Spreads
+                  </h3>
+                  {adminSections.spreads ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </div>
+                
+                {adminSections.spreads && (
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      {games.map((game) => (
+                        <div key={game.id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">
+                                Game #{game.id}: {game.awayTeam} @ {game.homeTeam}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {formatDate(game.gameTime)}
+                              </p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Current spread: {game.homeTeam} {game.homeSpread} / {game.awayTeam} +{Math.abs(game.awaySpread)}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2 ml-4">
+                              <input
+                                id={`spread-${game.id}`}
+                                type="number"
+                                step="0.5"
+                                placeholder="Home spread"
+                                className="w-24 px-2 py-1 border rounded text-sm"
+                                defaultValue={game.homeSpread}
+                              />
+                              <button
+                                onClick={() => {
+                                  const spreadInput = document.getElementById(`spread-${game.id}`);
+                                  const newSpread = parseFloat(spreadInput.value);
+                                  if (isNaN(newSpread)) {
+                                    alert('Please enter a valid number');
+                                    return;
+                                  }
+                                  handleUpdateSpread(game.id, newSpread);
+                                }}
+                                disabled={loading}
+                                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+                              >
+                                Update
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {games.length === 0 && (
+                        <p className="text-gray-500">No games available to set spreads</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Create User - Collapsible */}
+              <div className="bg-white shadow rounded-lg">
+                <div 
+                  className="p-6 border-b cursor-pointer flex justify-between items-center hover:bg-gray-50"
+                  onClick={() => toggleAdminSection('createUser')}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Create New User
+                  </h3>
+                  {adminSections.createUser ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </div>
+                
+                {adminSections.createUser && (
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Username
+                        </label>
+                        <input
+                          type="text"
+                          value={adminForm.username}
+                          onChange={(e) => setAdminForm({...adminForm, username: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter username"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Password
+                        </label>
+                        <input
+                          type="password"
+                          value={adminForm.password}
+                          onChange={(e) => setAdminForm({...adminForm, password: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter password"
+                        />
+                      </div>
+
+                      <button
+                        onClick={handleCreateUser}
+                        disabled={loading || !adminForm.username || !adminForm.password}
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create User
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default App;
