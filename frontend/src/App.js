@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, Chev
+
 const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
 
 const App = () => {
@@ -43,7 +44,9 @@ const App = () => {
   }, [token]);
 
   useEffect(() => {
+    console.log('User data:', user); // Debug log
     if (user?.username === 'admin' || user?.username === 'AndyM') {
+      console.log('Fetching pending wagers for admin:', user.username); // Debug log
       fetchGroupedPendingWagers();
     }
   }, [user?.username]);
@@ -367,7 +370,7 @@ const App = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center text-sm text-gray-600">
                 <User className="h-4 w-4 mr-1" />
-                {user?.username}
+                {user?.username} {(user?.username === 'admin' || user?.username === 'AndyM') && '(ADMIN)'}
               </div>
               <div className="flex items-center text-sm font-medium text-green-600">
                 <Coins className="h-4 w-4 mr-1" />
