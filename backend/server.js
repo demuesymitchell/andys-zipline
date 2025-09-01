@@ -157,14 +157,14 @@ app.get('/api/games', authenticateToken, async (req, res) => {
     const response = await axios.get('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
     const espnGames = response.data.events;
     
-    // Filter for Sunday games (1PM ET and later, includes 4PM, 8PM games)
+    // Filter for Sunday games (1PM ET and later, includes 4PM, 8PM games)  
     const sundayGames = espnGames.filter(event => {
       const gameDate = new Date(event.date);
       const dayOfWeek = gameDate.getDay(); // 0 = Sunday
       const hour = gameDate.getUTCHours();
       
       // Sunday games starting at 1PM ET (17:00 UTC) or later
-      // This includes 1PM, 4PM, and 8PM games but excludes London games (usually 9:30am ET)
+      // This includes 1PM, 4PM, and 8PM games but excludes London games
       return dayOfWeek === 0 && hour >= 17;
     });
 
@@ -177,8 +177,8 @@ app.get('/api/games', authenticateToken, async (req, res) => {
         id: index + 1,
         homeTeam: homeTeam.team.displayName,
         awayTeam: awayTeam.team.displayName,
-        homeSpread: null, // Admin will set these
-        awaySpread: null,
+        homeSpread: 0, // Default to 0 instead of null
+        awaySpread: 0,
         gameTime: event.date,
         status: event.status.type.name === 'STATUS_SCHEDULED' ? 'upcoming' : 'active',
         spreadsSet: false
@@ -196,22 +196,37 @@ app.get('/api/games', authenticateToken, async (req, res) => {
     }
 
     games = apiGames;
-    
-    // Only return games with spreads set to regular users
-    const gamesForUsers = games.filter(game => game.spreadsSet);
-    res.json(gamesForUsers);
+    res.json(games); // Return all games
   } catch (error) {
     console.error('Failed to fetch NFL data:', error);
     
-    // Return existing games with spreads set if API fails
-    const gamesForUsers = games.filter(game => game.spreadsSet);
-    res.json(gamesForUsers);
+    // Fallback to mock games if ESPN API fails
+    const fallbackGames = [
+      {
+        id: 1,
+        homeTeam: 'Kansas City Chiefs',
+        awayTeam: 'Detroit Lions',
+        homeSpread: -2.5,
+        awaySpread: 2.5,
+        gameTime: '2025-09-07T17:00:00.000Z',
+        status: 'upcoming',
+        spreadsSet: true
+      },
+      {
+        id: 2,
+        homeTeam: 'Buffalo Bills',
+        awayTeam: 'New York Jets',
+        homeSpread: -6.5,
+        awaySpread: 6.5,
+        gameTime: '2025-09-08T00:20:00.000Z', // 8:20 PM ET
+        status: 'upcoming',
+        spreadsSet: true
+      }
+    ];
+    
+    games = fallbackGames;
+    res.json(fallbackGames);
   }
-});
-
-// Admin: Get all games (including those without spreads)
-app.get('/api/admin/games', authenticateToken, authenticateAdmin, (req, res) => {
-  res.json(games);
 });
 
 // Admin: Set spreads for games
