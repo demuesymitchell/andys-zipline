@@ -190,11 +190,7 @@ app.get('/api/games', authenticateToken, async (req, res) => {
         awaySpread: 0,
         gameTime: event.date,
         status: event.status.type.name === 'STATUS_SCHEDULED' ? 'upcoming' : 'active',
-        spreadsSet: false,
-        homeScore: homeTeam.score || 0,
-        awayScore: awayTeam.score || 0,
-        gameStatus: event.status.type.description,
-        settled: false
+        spreadsSet: false
       };
     });
 
@@ -213,124 +209,52 @@ app.get('/api/games', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch NFL data:', error.message);
     
-    // Week 3 NFL games fallback (September 22, 2024)
-    const week3Games = [
+    // Enhanced fallback games including all time slots
+    const fallbackGames = [
       {
         id: 1,
-        homeTeam: 'Chicago Bears',
-        awayTeam: 'Indianapolis Colts',
-        homeSpread: -1.5,
-        awaySpread: 1.5,
-        gameTime: '2024-09-22T17:00:00.000Z', // 1:00 PM ET
+        homeTeam: 'Kansas City Chiefs',
+        awayTeam: 'Detroit Lions',
+        homeSpread: -2.5,
+        awaySpread: 2.5,
+        gameTime: '2025-09-07T17:00:00.000Z', // 1:00 PM ET
         status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
+        spreadsSet: true
       },
       {
         id: 2,
-        homeTeam: 'Green Bay Packers',
-        awayTeam: 'Tennessee Titans',
-        homeSpread: -6.5,
-        awaySpread: 6.5,
-        gameTime: '2024-09-22T17:00:00.000Z', // 1:00 PM ET
+        homeTeam: 'Dallas Cowboys',
+        awayTeam: 'Green Bay Packers',
+        homeSpread: -3.5,
+        awaySpread: 3.5,
+        gameTime: '2025-09-07T20:25:00.000Z', // 4:25 PM ET
         status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
+        spreadsSet: true
       },
       {
         id: 3,
-        homeTeam: 'Houston Texans',
-        awayTeam: 'Minnesota Vikings',
-        homeSpread: -2.5,
-        awaySpread: 2.5,
-        gameTime: '2024-09-22T17:00:00.000Z', // 1:00 PM ET
+        homeTeam: 'Buffalo Bills',
+        awayTeam: 'New York Jets',
+        homeSpread: -6.5,
+        awaySpread: 6.5,
+        gameTime: '2025-09-08T00:20:00.000Z', // 8:20 PM ET Sunday
         status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
+        spreadsSet: true
       },
       {
         id: 4,
-        homeTeam: 'Philadelphia Eagles',
-        awayTeam: 'New Orleans Saints',
-        homeSpread: -2.5,
-        awaySpread: 2.5,
-        gameTime: '2024-09-22T17:00:00.000Z', // 1:00 PM ET
-        status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
-      },
-      {
-        id: 5,
-        homeTeam: 'Los Angeles Chargers',
-        awayTeam: 'Pittsburgh Steelers',
+        homeTeam: 'Las Vegas Raiders',
+        awayTeam: 'Denver Broncos',
         homeSpread: -1.5,
         awaySpread: 1.5,
-        gameTime: '2024-09-22T17:00:00.000Z', // 1:00 PM ET
+        gameTime: '2025-09-09T01:15:00.000Z', // 8:15 PM ET Monday (MNF)
         status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
-      },
-      {
-        id: 6,
-        homeTeam: 'Carolina Panthers',
-        awayTeam: 'Las Vegas Raiders',
-        homeSpread: -5.5,
-        awaySpread: 5.5,
-        gameTime: '2024-09-22T20:05:00.000Z', // 4:05 PM ET
-        status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
-      },
-      {
-        id: 7,
-        homeTeam: 'Miami Dolphins',
-        awayTeam: 'Seattle Seahawks',
-        homeSpread: -4.5,
-        awaySpread: 4.5,
-        gameTime: '2024-09-22T20:25:00.000Z', // 4:25 PM ET
-        status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
-      },
-      {
-        id: 8,
-        homeTeam: 'Tampa Bay Buccaneers',
-        awayTeam: 'Denver Broncos',
-        homeSpread: -6.5,
-        awaySpread: 6.5,
-        gameTime: '2024-09-23T00:20:00.000Z', // 8:20 PM ET Sunday
-        status: 'upcoming',
-        spreadsSet: true,
-        homeScore: 0,
-        awayScore: 0,
-        gameStatus: 'Scheduled',
-        settled: false
+        spreadsSet: true
       }
     ];
     
-    games = week3Games;
-    res.json(week3Games);
+    games = fallbackGames;
+    res.json(fallbackGames);
   }
 });
 
@@ -555,146 +479,36 @@ app.put('/api/admin/wagers/user/:userId/decision', authenticateToken, authentica
   });
 });
 
-// Admin: Get all games for settlement
-app.get('/api/admin/games/settle', authenticateToken, authenticateAdmin, (req, res) => {
-  const gamesWithWagers = games.map(game => {
-    const gameWagers = wagers.filter(w => w.gameId === game.id && w.status === 'active');
-    return {
-      ...game,
-      activeWagers: gameWagers.length,
-      totalWagered: gameWagers.reduce((sum, w) => sum + w.amount, 0)
-    };
-  });
-  
-  res.json(gamesWithWagers);
-});
-
-// Admin: Settle a game
-app.post('/api/admin/games/:id/settle', authenticateToken, authenticateAdmin, (req, res) => {
-  const { homeScore, awayScore } = req.body;
-  const gameId = parseInt(req.params.id);
-  
-  const game = games.find(g => g.id === gameId);
-  if (!game) {
-    return res.status(404).json({ error: 'Game not found' });
-  }
-
-  if (game.settled) {
-    return res.status(400).json({ error: 'Game already settled' });
-  }
-
-  // Update game with final scores
-  game.homeScore = parseInt(homeScore);
-  game.awayScore = parseInt(awayScore);
-  game.settled = true;
-  game.gameStatus = 'Final';
-
-  // Calculate actual spread result
-  const actualSpread = game.homeScore - game.awayScore; // Positive if home wins by more than spread
-
-  // Find all active wagers for this game
-  const gameWagers = wagers.filter(w => w.gameId === gameId && w.status === 'active');
-  
-  let totalPayouts = 0;
-  let wagersSettled = 0;
-
-  gameWagers.forEach(wager => {
-    const user = users.find(u => u.id === wager.userId);
-    if (!user) return;
-
-    let result = 'loss';
-    let payout = 0;
-
-    // Determine if wager won based on spread
-    if (wager.team === game.homeTeam) {
-      // User bet on home team
-      if (actualSpread > wager.spread) {
-        result = 'win';
-        payout = wager.amount * 2; // Double the bet
-      } else if (actualSpread === wager.spread) {
-        result = 'push';
-        payout = wager.amount; // Return original bet
-      }
-    } else {
-      // User bet on away team  
-      if (actualSpread < wager.spread) {
-        result = 'win';
-        payout = wager.amount * 2; // Double the bet
-      } else if (actualSpread === wager.spread) {
-        result = 'push';
-        payout = wager.amount; // Return original bet
-      }
-    }
-
-    // Update wager and user coins
-    wager.status = result;
-    wager.settledAt = new Date().toISOString();
-    wager.payout = payout;
-
-    if (payout > 0) {
-      user.coins += payout;
-      totalPayouts += payout;
-    }
-
-    wagersSettled++;
-  });
-
-  res.json({
-    message: `Game settled successfully. ${wagersSettled} wagers processed.`,
-    game,
-    totalPayouts,
-    wagersSettled
-  });
-});
-
-// User: Edit wager (only pending wagers)
-app.put('/api/wagers/:id/edit', authenticateToken, (req, res) => {
-  const { amount, team, spread } = req.body;
+// Admin: Settle wager (win/loss/push)
+app.put('/api/admin/wagers/:id/settle', authenticateToken, authenticateAdmin, (req, res) => {
+  const { result } = req.body; // 'win', 'loss', 'push'
   const wagerId = parseInt(req.params.id);
-  const userId = req.user.userId;
-
-  const wager = wagers.find(w => w.id === wagerId && w.userId === userId);
+  
+  const wager = wagers.find(w => w.id === wagerId);
   if (!wager) {
     return res.status(404).json({ error: 'Wager not found' });
   }
 
-  if (wager.status !== 'pending_approval') {
-    return res.status(400).json({ error: 'Can only edit pending wagers' });
+  if (wager.status !== 'active') {
+    return res.status(400).json({ error: 'Can only settle active wagers' });
   }
 
-  const user = users.find(u => u.id === userId);
-  if (amount > user.coins) {
-    return res.status(400).json({ error: 'Insufficient coins' });
+  const user = users.find(u => u.id === wager.userId);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
   }
 
-  // Update wager
-  wager.amount = amount;
-  wager.team = team;
-  wager.spread = spread;
-  wager.updatedAt = new Date().toISOString();
+  wager.status = result;
+  wager.settledAt = new Date().toISOString();
 
-  res.json({ message: 'Wager updated successfully', wager });
-});
-
-// User: Cancel wager (only pending wagers)
-app.delete('/api/wagers/:id/cancel', authenticateToken, (req, res) => {
-  const wagerId = parseInt(req.params.id);
-  const userId = req.user.userId;
-
-  const wagerIndex = wagers.findIndex(w => w.id === wagerId && w.userId === userId);
-  if (wagerIndex === -1) {
-    return res.status(404).json({ error: 'Wager not found' });
+  if (result === 'win') {
+    user.coins += wager.amount * 2; // Double the wager
+  } else if (result === 'push') {
+    user.coins += wager.amount; // Return original wager
   }
+  // For loss, coins already deducted when approved
 
-  const wager = wagers[wagerIndex];
-  if (wager.status !== 'pending_approval') {
-    return res.status(400).json({ error: 'Can only cancel pending wagers' });
-  }
-
-  // Remove wager
-  wagers.splice(wagerIndex, 1);
-
-  res.json({ message: 'Wager cancelled successfully' });
+  res.json({ wager, userCoins: user.coins });
 });
 
 // Get all users (admin only)
