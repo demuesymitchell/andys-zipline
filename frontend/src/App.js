@@ -1,123 +1,4 @@
-{/* Wagers Tab */}
-          {activeTab === 'wagers' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white">My Wagers</h2>
-              
-              <div className="bg-gray-800 shadow overflow-hidden sm:rounded-md">
-                <ul className="divide-y divide-gray-700">
-                  {wagers.map((wager) => {
-                    const game = games.find(g => g.id === wager.gameId);
-                    const canEdit = wager.status === 'pending_approval';
-                    const isEditing = editingWager === wager.id;
-                    
-                    return (
-                      <li key={wager.id} className="px-6 py-4">
-                        {isEditing ? (
-                          <div className="space-y-3">
-                            <div className="font-medium text-white">
-                              Editing: {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
-                            </div>
-                            <div className="flex space-x-3">
-                              <select 
-                                id={`edit-team-${wager.id}`}
-                                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
-                                defaultValue={`${wager.team}|${wager.spread}`}
-                              >
-                                {game && (
-                                  <>
-                                    <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
-                                    <option value={`${game.awayTeam}|${game.awaySpread}`}>{game.awayTeam} (+{Math.abs(game.awaySpread)})</option>
-                                  </>
-                                )}
-                              </select>
-                              
-                              <input
-                                id={`edit-amount-${wager.id}`}
-                                type="number"
-                                defaultValue={wager.amount}
-                                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
-                                min="1"
-                                max={user?.coins}
-                              />
-                              
-                              <button
-                                onClick={() => {
-                                  const teamSelect = document.getElementById(`edit-team-${wager.id}`);
-                                  const amountInput = document.getElementById(`edit-amount-${wager.id}`);
-                                  const [team, spread] = teamSelect.value.split('|');
-                                  const amount = parseInt(amountInput.value);
-                                  
-                                  if (amount < 1) {
-                                    alert('Amount must be at least 1 coin');
-                                    return;
-                                  }
-                                  
-                                  handleEditWager(wager.id, amount, team, parseFloat(spread));
-                                }}
-                                className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700"
-                              >
-                                Save
-                              </button>
-                              
-                              <button
-                                onClick={() => setEditingWager(null)}
-                                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-medium text-white">
-                                {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread})
-                              </div>
-                              <div className="text-sm text-gray-400">
-                                {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-4">
-                              <div className="text-right">
-                                <div className="font-medium text-yellow-400">{wager.amount} coins</div>
-                                <div className="text-sm text-gray-500">
-                                  {new Date(wager.createdAt).toLocaleDateString()}
-                                </div>
-                              </div>
-                              {canEdit && (
-                                <div className="flex space-x-2">
-                                  <button
-                                    onClick={() => setEditingWager(wager.id)}
-                                    className="text-blue-400 hover:text-blue-300 text-sm"
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    onClick={() => handleCancelWager(wager.id)}
-                                    className="text-red-400 hover:text-red-300 text-sm"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              )}
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getWagerStatus(wager.status)}`}>
-                                {getStatusText(wager.status)}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-                {wagers.length === 0 && (
-                  <div className="text-center py-8 text-gray-400">
-                    No wagers placed yet
-                  </div>
-                )}
-              </div>
-            </div>
-          )}import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Coins, Trophy, Calendar, Lock, Plus, Users, ShoppingCart, Check, X, Award, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_BASE = 'https://andys-zipline-production.up.railway.app/api';
@@ -427,7 +308,7 @@ const App = () => {
   };
 
   const handleCancelWager = async (wagerId) => {
-    if (!confirm('Are you sure you want to cancel this wager?')) return;
+    if (!window.confirm('Are you sure you want to cancel this wager?')) return;
     
     setLoading(true);
 
@@ -715,112 +596,6 @@ const App = () => {
                 <div className="space-y-4">
                   {cart.map((item) => (
                     <div key={item.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="font-medium text-white">{item.gameName}</h3>
-                          <p className="text-sm text-gray-400">
-                            {item.team} ({item.spread > 0 ? '+' : ''}{item.spread})
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="font-medium text-yellow-400">{item.amount} coins</div>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-red-400 hover:text-red-300"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="border-t border-gray-700 p-6">
-              <div className="space-y-4">
-                <div className="flex justify-between text-lg font-semibold">
-                  <span className="text-white">Total:</span>
-                  <span className="text-yellow-400">{cartTotal} coins</span>
-                </div>
-                <div className="text-sm text-gray-400">
-                  {cartTotal < minimumCartTotal 
-                    ? `Minimum cart total: ${minimumCartTotal} coins (10% of your balance)`
-                    : cartTotal > user?.coins 
-                    ? 'Insufficient coins!'
-                    : 'Ready to submit for approval'
-                  }
-                </div>
-                <button
-                  onClick={submitCart}
-                  disabled={loading || cartTotal < minimumCartTotal || cartTotal > user?.coins || cart.length === 0}
-                  className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md hover:bg-emerald-700 disabled:opacity-50 font-medium"
-                >
-                  Submit for Approval
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          
-          {/* Games Tab */}
-          {activeTab === 'games' && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white">Available Games</h2>
-                <div className="text-sm text-gray-400">
-                  Cart minimum: {minimumCartTotal} coins total (10% of your balance)
-                </div>
-              </div>
-              
-              {/* Group games by time slots */}
-              {(() => {
-                const timeSlots = {
-                  '1:00 PM ET': [],
-                  '4:05 PM ET': [],
-                  '4:25 PM ET': [], 
-                  '8:20 PM ET': []
-                };
-
-                games.forEach(game => {
-                  const gameTime = new Date(game.gameTime);
-                  const hour = gameTime.getUTCHours();
-                  const minute = gameTime.getUTCMinutes();
-                  
-                  if (hour === 17 && minute === 0) {
-                    timeSlots['1:00 PM ET'].push(game);
-                  } else if (hour === 20 && minute === 5) {
-                    timeSlots['4:05 PM ET'].push(game);
-                  } else if (hour === 20 && minute === 25) {
-                    timeSlots['4:25 PM ET'].push(game);
-                  } else if (hour === 0 && minute === 20) {
-                    timeSlots['8:20 PM ET'].push(game);
-                  } else {
-                    if (hour >= 17 && hour < 20) {
-                      timeSlots['1:00 PM ET'].push(game);
-                    } else if (hour >= 20 && hour < 23) {
-                      timeSlots['4:25 PM ET'].push(game);
-                    } else {
-                      timeSlots['8:20 PM ET'].push(game);
-                    }
-                  }
-                });
-
-                return Object.entries(timeSlots).map(([timeSlot, slotGames]) => (
-                  slotGames.length > 0 && (
-                    <div key={timeSlot} className="space-y-4">
-                      <div className="border-b border-gray-700 pb-2">
-                        <h3 className="text-xl font-semibold text-white flex items-center">
-                          <Calendar className="h-5 w-5 mr-2 text-emerald-500" />
-                          {timeSlot} Games
-                        </h3>
-                      </div>
                       
                       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {slotGames.map((game) => (
@@ -921,29 +696,105 @@ const App = () => {
                 <ul className="divide-y divide-gray-700">
                   {wagers.map((wager) => {
                     const game = games.find(g => g.id === wager.gameId);
+                    const canEdit = wager.status === 'pending_approval';
+                    const isEditing = editingWager === wager.id;
+                    
                     return (
                       <li key={wager.id} className="px-6 py-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
+                        {isEditing ? (
+                          <div className="space-y-3">
                             <div className="font-medium text-white">
-                              {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread})
+                              Editing: {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
                             </div>
-                            <div className="text-sm text-gray-400">
-                              {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
+                            <div className="flex space-x-3">
+                              <select 
+                                id={`edit-team-${wager.id}`}
+                                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
+                                defaultValue={`${wager.team}|${wager.spread}`}
+                              >
+                                {game && (
+                                  <>
+                                    <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
+                                    <option value={`${game.awayTeam}|${game.awaySpread}`}>{game.awayTeam} (+{Math.abs(game.awaySpread)})</option>
+                                  </>
+                                )}
+                              </select>
+                              
+                              <input
+                                id={`edit-amount-${wager.id}`}
+                                type="number"
+                                defaultValue={wager.amount}
+                                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
+                                min="1"
+                                max={user?.coins}
+                              />
+                              
+                              <button
+                                onClick={() => {
+                                  const teamSelect = document.getElementById(`edit-team-${wager.id}`);
+                                  const amountInput = document.getElementById(`edit-amount-${wager.id}`);
+                                  const [team, spread] = teamSelect.value.split('|');
+                                  const amount = parseInt(amountInput.value);
+                                  
+                                  if (amount < 1) {
+                                    alert('Amount must be at least 1 coin');
+                                    return;
+                                  }
+                                  
+                                  handleEditWager(wager.id, amount, team, parseFloat(spread));
+                                }}
+                                className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700"
+                              >
+                                Save
+                              </button>
+                              
+                              <button
+                                onClick={() => setEditingWager(null)}
+                                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+                              >
+                                Cancel
+                              </button>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-4">
-                            <div className="text-right">
-                              <div className="font-medium text-yellow-400">{wager.amount} coins</div>
-                              <div className="text-sm text-gray-500">
-                                {new Date(wager.createdAt).toLocaleDateString()}
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="font-medium text-white">
+                                {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread})
+                              </div>
+                              <div className="text-sm text-gray-400">
+                                {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
                               </div>
                             </div>
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getWagerStatus(wager.status)}`}>
-                              {getStatusText(wager.status)}
-                            </span>
+                            <div className="flex items-center space-x-4">
+                              <div className="text-right">
+                                <div className="font-medium text-yellow-400">{wager.amount} coins</div>
+                                <div className="text-sm text-gray-500">
+                                  {new Date(wager.createdAt).toLocaleDateString()}
+                                </div>
+                              </div>
+                              {canEdit && (
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => setEditingWager(wager.id)}
+                                    className="text-blue-400 hover:text-blue-300 text-sm"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleCancelWager(wager.id)}
+                                    className="text-red-400 hover:text-red-300 text-sm"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              )}
+                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getWagerStatus(wager.status)}`}>
+                                {getStatusText(wager.status)}
+                              </span>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </li>
                     );
                   })}
@@ -1056,7 +907,7 @@ const App = () => {
                                 return;
                               }
                               
-                              if (!confirm(`Settle game: ${game.awayTeam} ${awayScore} - ${game.homeTeam} ${homeScore}?`)) {
+                              if (!window.confirm(`Settle game: ${game.awayTeam} ${awayScore} - ${game.homeTeam} ${homeScore}?`)) {
                                 return;
                               }
                               
@@ -1276,4 +1127,109 @@ const App = () => {
   );
 };
 
-export default App;
+export default App;<div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-white">{item.gameName}</h3>
+                          <p className="text-sm text-gray-400">
+                            {item.team} ({item.spread > 0 ? '+' : ''}{item.spread})
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="font-medium text-yellow-400">{item.amount} coins</div>
+                          <button
+                            onClick={() => removeFromCart(item.id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-gray-700 p-6">
+              <div className="space-y-4">
+                <div className="flex justify-between text-lg font-semibold">
+                  <span className="text-white">Total:</span>
+                  <span className="text-yellow-400">{cartTotal} coins</span>
+                </div>
+                <div className="text-sm text-gray-400">
+                  {cartTotal < minimumCartTotal 
+                    ? `Minimum cart total: ${minimumCartTotal} coins (10% of your balance)`
+                    : cartTotal > user?.coins 
+                    ? 'Insufficient coins!'
+                    : 'Ready to submit for approval'
+                  }
+                </div>
+                <button
+                  onClick={submitCart}
+                  disabled={loading || cartTotal < minimumCartTotal || cartTotal > user?.coins || cart.length === 0}
+                  className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md hover:bg-emerald-700 disabled:opacity-50 font-medium"
+                >
+                  Submit for Approval
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          
+          {/* Games Tab */}
+          {activeTab === 'games' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-white">Available Games</h2>
+                <div className="text-sm text-gray-400">
+                  Cart minimum: {minimumCartTotal} coins total (10% of your balance)
+                </div>
+              </div>
+              
+              {/* Group games by time slots */}
+              {(() => {
+                const timeSlots = {
+                  '1:00 PM ET': [],
+                  '4:05 PM ET': [],
+                  '4:25 PM ET': [], 
+                  '8:20 PM ET': []
+                };
+
+                games.forEach(game => {
+                  const gameTime = new Date(game.gameTime);
+                  const hour = gameTime.getUTCHours();
+                  const minute = gameTime.getUTCMinutes();
+                  
+                  if (hour === 17 && minute === 0) {
+                    timeSlots['1:00 PM ET'].push(game);
+                  } else if (hour === 20 && minute === 5) {
+                    timeSlots['4:05 PM ET'].push(game);
+                  } else if (hour === 20 && minute === 25) {
+                    timeSlots['4:25 PM ET'].push(game);
+                  } else if (hour === 0 && minute === 20) {
+                    timeSlots['8:20 PM ET'].push(game);
+                  } else {
+                    if (hour >= 17 && hour < 20) {
+                      timeSlots['1:00 PM ET'].push(game);
+                    } else if (hour >= 20 && hour < 23) {
+                      timeSlots['4:25 PM ET'].push(game);
+                    } else {
+                      timeSlots['8:20 PM ET'].push(game);
+                    }
+                  }
+                });
+
+                return Object.entries(timeSlots).map(([timeSlot, slotGames]) => (
+                  slotGames.length > 0 && (
+                    <div key={timeSlot} className="space-y-4">
+                      <div className="border-b border-gray-700 pb-2">
+                        <h3 className="text-xl font-semibold text-white flex items-center">
+                          <Calendar className="h-5 w-5 mr-2 text-emerald-500" />
+                          {timeSlot} Games
+                        </h3>
+                      </div>
