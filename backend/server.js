@@ -105,6 +105,8 @@ let carts = {}; // userId -> array of cart items
 
 const JWT_SECRET = 'your-secret-key-change-in-production';
 
+console.log('Setting up authentication middleware...');
+
 // Auth middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -121,7 +123,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Admin middleware - Updated to include AndyM
+// Admin middleware
 const authenticateAdmin = (req, res, next) => {
   console.log('Admin auth check for user:', req.user.username);
   if (req.user.username !== 'admin' && req.user.username !== 'AndyM') {
@@ -132,7 +134,7 @@ const authenticateAdmin = (req, res, next) => {
   next();
 };
 
-// Routes
+console.log('Setting up routes...');
 
 // Login
 app.post('/api/login', async (req, res) => {
@@ -180,7 +182,7 @@ app.get('/api/user', authenticateToken, (req, res) => {
   });
 });
 
-// Get leaderboard - only hide admin, show AndyM
+// Get leaderboard
 app.get('/api/leaderboard', authenticateToken, (req, res) => {
   const leaderboard = users
     .filter(u => !u.hideFromLeaderboard)
@@ -219,14 +221,13 @@ app.post('/api/admin/users', authenticateToken, authenticateAdmin, async (req, r
   });
 });
 
-// Get NFL games from ESPN API - Week 3 fallback games
+// Get NFL games
 app.get('/api/games', authenticateToken, async (req, res) => {
   try {
-    // Fetch live NFL data from ESPN
+    // Try to fetch live NFL data from ESPN
     const response = await axios.get('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
     const espnGames = response.data.events;
     
-    // Filter for Sunday games and Monday Night Football
     const relevantGames = espnGames.filter(event => {
       const gameDate = new Date(event.date);
       const dayOfWeek = gameDate.getDay();
@@ -243,7 +244,6 @@ app.get('/api/games', authenticateToken, async (req, res) => {
 
     console.log(`Found ${relevantGames.length} relevant NFL games`);
 
-    // Convert ESPN data to our format
     let apiGames = relevantGames.map((event, index) => {
       const homeTeam = event.competitions[0].competitors.find(team => team.homeAway === 'home');
       const awayTeam = event.competitions[0].competitors.find(team => team.homeAway === 'away');
@@ -260,7 +260,6 @@ app.get('/api/games', authenticateToken, async (req, res) => {
       };
     });
 
-    // Merge with existing games that have spreads set
     if (games.length > 0) {
       apiGames = apiGames.map(apiGame => {
         const existingGame = games.find(g => 
@@ -275,130 +274,127 @@ app.get('/api/games', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch NFL data:', error.message);
     
-    // Week 3 fallback games for September 21, 2025
+    // Week 3 fallback games
     const week3Games = [
       {
         id: 1,
         homeTeam: 'Jacksonville Jaguars',
         awayTeam: 'Houston Texans',
-        homeSpread: -1.5,
-        awaySpread: 1.5,
-        gameTime: '2025-09-21T17:00:00.000Z', // 1:00 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T17:00:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 2,
         homeTeam: 'Minnesota Vikings',
         awayTeam: 'Cincinnati Bengals',
-        homeSpread: -3.5,
-        awaySpread: 3.5,
-        gameTime: '2025-09-21T17:00:00.000Z', // 1:00 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T17:00:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 3,
         homeTeam: 'Green Bay Packers',
         awayTeam: 'Cleveland Browns',
-        homeSpread: -7.5,
-        awaySpread: 7.5,
-        gameTime: '2025-09-21T17:00:00.000Z', // 1:00 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T17:00:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 4,
         homeTeam: 'Pittsburgh Steelers',
         awayTeam: 'New England Patriots',
-        homeSpread: -1.5,
-        awaySpread: 1.5,
-        gameTime: '2025-09-21T17:00:00.000Z', // 1:00 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T17:00:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 5,
         homeTeam: 'Tampa Bay Buccaneers',
         awayTeam: 'New York Jets',
-        homeSpread: -6.5,
-        awaySpread: 6.5,
-        gameTime: '2025-09-21T17:00:00.000Z', // 1:00 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T17:00:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 6,
         homeTeam: 'Indianapolis Colts',
         awayTeam: 'Tennessee Titans',
-        homeSpread: -3.5,
-        awaySpread: 3.5,
-        gameTime: '2025-09-21T17:00:00.000Z', // 1:00 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T17:00:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 7,
         homeTeam: 'Philadelphia Eagles',
         awayTeam: 'Los Angeles Rams',
-        homeSpread: -3.5,
-        awaySpread: 3.5,
-        gameTime: '2025-09-21T17:00:00.000Z', // 1:00 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T17:00:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 8,
         homeTeam: 'Los Angeles Chargers',
         awayTeam: 'Denver Broncos',
-        homeSpread: -2.5,
-        awaySpread: 2.5,
-        gameTime: '2025-09-21T20:05:00.000Z', // 4:05 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T20:05:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 9,
         homeTeam: 'Seattle Seahawks',
         awayTeam: 'New Orleans Saints',
-        homeSpread: -7.5,
-        awaySpread: 7.5,
-        gameTime: '2025-09-21T20:05:00.000Z', // 4:05 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T20:05:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 10,
         homeTeam: 'Chicago Bears',
         awayTeam: 'Dallas Cowboys',
-        homeSpread: -1.5,
-        awaySpread: 1.5,
-        gameTime: '2025-09-21T20:25:00.000Z', // 4:25 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T20:25:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 11,
         homeTeam: 'San Francisco 49ers',
         awayTeam: 'Arizona Cardinals',
-        homeSpread: -1.5,
-        awaySpread: 1.5,
-        gameTime: '2025-09-21T20:25:00.000Z', // 4:25 PM ET
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-21T20:25:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
+        spreadsSet: false
       },
       {
         id: 12,
         homeTeam: 'New York Giants',
         awayTeam: 'Kansas City Chiefs',
-        homeSpread: 6,
-        awaySpread: -6,
-        gameTime: '2025-09-22T00:20:00.000Z', // 8:20 PM ET Sunday Night
+        homeSpread: 0,
+        awaySpread: 0,
+        gameTime: '2025-09-22T00:20:00.000Z',
         status: 'upcoming',
-        spreadsSet: true
-      }
-    ];
-        spreadsSet: true
+        spreadsSet: false
       }
     ];
     
@@ -452,7 +448,6 @@ app.post('/api/cart', authenticateToken, (req, res) => {
     carts[userId] = [];
   }
 
-  // Check if item already in cart for this game
   const existingIndex = carts[userId].findIndex(item => item.gameId === gameId);
   
   const cartItem = {
@@ -489,8 +484,6 @@ app.post('/api/cart/submit', authenticateToken, (req, res) => {
   const userId = req.user.userId;
   const userCart = carts[userId] || [];
   
-  console.log(`Cart submission attempt by user ${userId}:`, userCart);
-  
   if (userCart.length === 0) {
     return res.status(400).json({ error: 'Cart is empty' });
   }
@@ -498,25 +491,19 @@ app.post('/api/cart/submit', authenticateToken, (req, res) => {
   const user = users.find(u => u.id === userId);
   const totalAmount = userCart.reduce((sum, item) => sum + item.amount, 0);
   
-  // Calculate existing pending wagers
   const pendingAmount = wagers
     .filter(w => w.userId === userId && w.status === 'pending_approval')
     .reduce((sum, w) => sum + w.amount, 0);
   
-  console.log(`User ${user.username} submitting ${userCart.length} wagers for ${totalAmount} total coins, has ${pendingAmount} pending`);
-  
-  // Check 10% minimum on total cart amount
   const minimumCartTotal = Math.floor(user.coins * 0.1);
   if (totalAmount < minimumCartTotal) {
     return res.status(400).json({ error: `Cart total must be at least ${minimumCartTotal} coins (10% of your balance)` });
   }
   
-  // Check total commitment including pending wagers
   if (user.coins < totalAmount + pendingAmount) {
     return res.status(400).json({ error: 'Insufficient coins including pending wagers' });
   }
 
-  // Create pending wagers
   userCart.forEach(item => {
     const wager = {
       id: wagers.length + 1,
@@ -530,13 +517,9 @@ app.post('/api/cart/submit', authenticateToken, (req, res) => {
       submittedAt: new Date().toISOString()
     };
     wagers.push(wager);
-    console.log('Created wager:', wager);
   });
 
-  // Clear cart
   carts[userId] = [];
-
-  console.log(`Total wagers in system: ${wagers.length}`);
   
   res.json({ message: 'Wagers submitted for approval', count: userCart.length });
 });
@@ -547,7 +530,7 @@ app.get('/api/wagers', authenticateToken, (req, res) => {
   res.json(userWagers);
 });
 
-// NEW: Edit user's pending wager
+// Edit user's pending wager
 app.put('/api/wagers/:id', authenticateToken, (req, res) => {
   const wagerId = parseInt(req.params.id);
   const { amount } = req.body;
@@ -567,7 +550,6 @@ app.put('/api/wagers/:id', authenticateToken, (req, res) => {
     return res.status(404).json({ error: 'User not found' });
   }
 
-  // Calculate total pending wagers excluding this one
   const otherPendingAmount = wagers
     .filter(w => w.userId === userId && w.status === 'pending_approval' && w.id !== wagerId)
     .reduce((sum, w) => sum + w.amount, 0);
@@ -589,7 +571,7 @@ app.put('/api/wagers/:id', authenticateToken, (req, res) => {
   });
 });
 
-// NEW: Cancel user's pending wager
+// Cancel user's pending wager
 app.delete('/api/wagers/:id', authenticateToken, (req, res) => {
   const wagerId = parseInt(req.params.id);
   const userId = req.user.userId;
@@ -604,26 +586,18 @@ app.delete('/api/wagers/:id', authenticateToken, (req, res) => {
     return res.status(400).json({ error: 'Can only cancel pending wagers' });
   }
 
-  // Remove wager from array
   wagers.splice(wagerIndex, 1);
 
   res.json({ message: 'Wager cancelled successfully' });
 });
 
-// Admin: Get grouped pending wagers (by user)
+// Admin: Get grouped pending wagers
 app.get('/api/admin/wagers/pending/grouped', authenticateToken, authenticateAdmin, (req, res) => {
-  console.log(`Admin ${req.user.username} requesting pending wagers`);
-  console.log(`Total wagers in system: ${wagers.length}`);
-  
   const pendingWagers = wagers.filter(w => w.status === 'pending_approval');
-  console.log(`Pending wagers found: ${pendingWagers.length}`, pendingWagers);
   
-  // Group wagers by user
   const groupedWagers = pendingWagers.reduce((groups, wager) => {
     const user = users.find(u => u.id === wager.userId);
     const game = games.find(g => g.id === wager.gameId);
-    
-    console.log(`Processing wager for user ID ${wager.userId}, found user:`, user?.username);
     
     const userId = wager.userId;
     if (!groups[userId]) {
@@ -645,19 +619,16 @@ app.get('/api/admin/wagers/pending/grouped', authenticateToken, authenticateAdmi
     return groups;
   }, {});
   
-  // Convert to array and sort by submission time
   const groupedArray = Object.values(groupedWagers).sort((a, b) => 
     new Date(a.submittedAt) - new Date(b.submittedAt)
   );
   
-  console.log(`Returning ${groupedArray.length} grouped pending wagers`);
-  
   res.json(groupedArray);
 });
 
-// Admin: Approve/Reject multiple wagers (user's entire cart)
+// Admin: Approve/Reject wagers
 app.put('/api/admin/wagers/user/:userId/decision', authenticateToken, authenticateAdmin, (req, res) => {
-  const { decision } = req.body; // 'approved' or 'rejected'
+  const { decision } = req.body;
   const userId = parseInt(req.params.userId);
   
   const userWagers = wagers.filter(w => w.userId === userId && w.status === 'pending_approval');
@@ -682,7 +653,6 @@ app.put('/api/admin/wagers/user/:userId/decision', authenticateToken, authentica
     }
   });
 
-  // Only deduct coins if approved
   if (decision === 'approved') {
     user.coins -= totalAmount;
   }
@@ -694,9 +664,9 @@ app.put('/api/admin/wagers/user/:userId/decision', authenticateToken, authentica
   });
 });
 
-// NEW: Admin: Settle wager (win/loss/push)
+// Admin: Settle wager
 app.put('/api/admin/wagers/:id/settle', authenticateToken, authenticateAdmin, (req, res) => {
-  const { result } = req.body; // 'win', 'loss', 'push'
+  const { result } = req.body;
   const wagerId = parseInt(req.params.id);
   
   const wager = wagers.find(w => w.id === wagerId);
@@ -717,11 +687,10 @@ app.put('/api/admin/wagers/:id/settle', authenticateToken, authenticateAdmin, (r
   wager.settledAt = new Date().toISOString();
 
   if (result === 'win') {
-    user.coins += wager.amount * 2; // Double the wager
+    user.coins += wager.amount * 2;
   } else if (result === 'push') {
-    user.coins += wager.amount; // Return original wager
+    user.coins += wager.amount;
   }
-  // For loss, coins already deducted when approved
 
   res.json({ wager, userCoins: user.coins });
 });
