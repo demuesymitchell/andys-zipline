@@ -1,13 +1,9 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const cors = require('cors');
-const axios = require('axios');
-const app = express();
 
 // Enhanced error handling and logging
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
+  console.error('Stack:', error.stack);
   process.exit(1);
 });
 
@@ -16,15 +12,38 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-console.log('Starting server...');
+console.log('Starting server initialization...');
 console.log('Node version:', process.version);
 console.log('Environment:', process.env.NODE_ENV || 'development');
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+let bcrypt, jwt, cors, axios;
 
-// Basic health check route
+try {
+  console.log('Loading bcryptjs...');
+  bcrypt = require('bcryptjs');
+  console.log('✓ bcryptjs loaded');
+
+  console.log('Loading jsonwebtoken...');
+  jwt = require('jsonwebtoken');
+  console.log('✓ jsonwebtoken loaded');
+
+  console.log('Loading cors...');
+  cors = require('cors');
+  console.log('✓ cors loaded');
+
+  console.log('Loading axios...');
+  axios = require('axios');
+  console.log('✓ axios loaded');
+
+} catch (error) {
+  console.error('Failed to load dependencies:', error);
+  process.exit(1);
+}
+
+console.log('Creating Express app...');
+const app = express();
+
+// Basic health check route first
 app.get('/', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date().toISOString() });
 });
@@ -32,6 +51,19 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime() });
 });
+
+console.log('Setting up middleware...');
+
+try {
+  app.use(cors());
+  console.log('✓ CORS middleware added');
+  
+  app.use(express.json());
+  console.log('✓ JSON middleware added');
+} catch (error) {
+  console.error('Middleware setup failed:', error);
+  process.exit(1);
+}
 
 // In-memory storage (replace with database in production)
 let users = [
