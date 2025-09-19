@@ -5,9 +5,33 @@ const cors = require('cors');
 const axios = require('axios');
 const app = express();
 
+// Enhanced error handling and logging
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+console.log('Starting server...');
+console.log('Node version:', process.version);
+console.log('Environment:', process.env.NODE_ENV || 'development');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Basic health check route
+app.get('/', (req, res) => {
+  res.json({ status: 'Server is running', timestamp: new Date().toISOString() });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', uptime: process.uptime() });
+});
 
 // In-memory storage (replace with database in production)
 let users = [
@@ -682,8 +706,18 @@ app.get('/api/admin/wagers', authenticateToken, authenticateAdmin, (req, res) =>
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+console.log('Attempting to start server on port:', PORT);
+
+app.listen(PORT, '0.0.0.0', (err) => {
+  if (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+  console.log(`Server successfully running on port ${PORT}`);
+  console.log(`Health check available at: http://localhost:${PORT}/health`);
 });
+
+console.log('Server setup complete');
 
 module.exports = app;
