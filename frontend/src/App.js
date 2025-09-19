@@ -408,7 +408,7 @@ const App = () => {
   };
 
   const handleCancelWager = async (wagerId) => {
-    if (!confirm('Are you sure you want to cancel this wager?')) {
+    if (!window.confirm('Are you sure you want to cancel this wager?')) {
       return;
     }
     setLoading(true);
