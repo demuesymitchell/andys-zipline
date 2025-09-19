@@ -434,46 +434,137 @@ const App = () => {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="bg-gray-800 rounded-lg shadow-2xl p-8 w-full max-w-md border border-gray-700">
-          <div className="text-center mb-8">
-            <Lock className="mx-auto h-12 w-12 text-emerald-500 mb-4" />
-            <h1 className="text-3xl font-bold text-white">Andy's Zipline</h1>
-            <p className="text-gray-400 mt-2">Login to access your account</p>
+      <div className="min-h-screen bg-gray-900 flex flex-col">
+        {/* NFL Teams Banner with Scrolling Logos */}
+        <div className="bg-gray-800 border-b border-gray-700 py-4 overflow-hidden relative">
+          <div className="flex animate-scroll whitespace-nowrap">
+            {[
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/car.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/den.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/det.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/min.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/no.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png'
+            ].concat([
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/car.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/den.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/det.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/min.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/no.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png',
+              'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png'
+            ]).map((logoUrl, index) => (
+              <img 
+                key={index}
+                src={logoUrl} 
+                alt="NFL Team"
+                className="h-10 w-10 mx-4 flex-shrink-0"
+              />
+            ))}
           </div>
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Username
-              </label>
-              <input
-                type="text"
-                value={loginForm.username}
-                onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                required
-              />
+          <style jsx>{`
+            @keyframes scroll {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .animate-scroll {
+              animation: scroll 30s linear infinite;
+            }
+          `}</style>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-lg shadow-2xl p-8 w-full max-w-md border border-gray-700">
+            <div className="text-center mb-8">
+              <Lock className="mx-auto h-12 w-12 text-emerald-500 mb-4" />
+              <h1 className="text-3xl font-bold text-white">Andy's Zipline</h1>
+              <p className="text-gray-400 mt-2">Login to access your account</p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                required
-              />
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={loginForm.username}
+                  onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  required
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleLogin}
+                disabled={loading || !loginForm.username || !loginForm.password}
+                className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 transition-colors"
+              >
+                {loading ? 'Logging in...' : 'Login'}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleLogin}
-              disabled={loading || !loginForm.username || !loginForm.password}
-              className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
-            >
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
           </div>
         </div>
       </div>
@@ -701,81 +792,150 @@ const App = () => {
                 </div>
               </div>
               
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {games.map((game) => (
-                  <div key={game.id} className="bg-gray-800 rounded-lg shadow p-6 border-l-4 border-emerald-500">
-                    <div className="text-center mb-4">
-                      <div className="text-sm text-gray-400 mb-2">
-                        <Calendar className="inline h-4 w-4 mr-1" />
-                        {formatDate(game.gameTime)}
+              {/* Group games by time slots */}
+              {(() => {
+                const timeSlots = {
+                  '1:00 PM ET': [],
+                  '4:05 PM ET': [],
+                  '4:25 PM ET': [], 
+                  '8:20 PM ET': []
+                };
+
+                games.forEach(game => {
+                  const gameTime = new Date(game.gameTime);
+                  const hour = gameTime.getUTCHours();
+                  const minute = gameTime.getUTCMinutes();
+                  
+                  if (hour === 17 && minute === 0) {
+                    timeSlots['1:00 PM ET'].push(game);
+                  } else if (hour === 20 && minute === 5) {
+                    timeSlots['4:05 PM ET'].push(game);
+                  } else if (hour === 20 && minute === 25) {
+                    timeSlots['4:25 PM ET'].push(game);
+                  } else if (hour === 0 && minute === 20) {
+                    timeSlots['8:20 PM ET'].push(game);
+                  } else {
+                    // Fallback grouping for games that don't match exact times
+                    if (hour >= 17 && hour < 20) {
+                      timeSlots['1:00 PM ET'].push(game);
+                    } else if (hour >= 20 && hour < 23) {
+                      timeSlots['4:25 PM ET'].push(game);
+                    } else {
+                      timeSlots['8:20 PM ET'].push(game);
+                    }
+                  }
+                });
+
+                return Object.entries(timeSlots).map(([timeSlot, slotGames]) => (
+                  slotGames.length > 0 && (
+                    <div key={timeSlot} className="space-y-4">
+                      <div className="border-b border-gray-700 pb-2">
+                        <h3 className="text-xl font-semibold text-white flex items-center">
+                          <Calendar className="h-5 w-5 mr-2 text-emerald-500" />
+                          {timeSlot} Games
+                        </h3>
                       </div>
-                      <div className="font-semibold text-lg text-white">
-                        {game.awayTeam} @ {game.homeTeam}
+                      
+                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {slotGames.map((game) => (
+                          <div key={game.id} className="bg-gray-800 rounded-lg shadow p-6 border-l-4 border-emerald-500">
+                            <div className="text-center mb-4">
+                              <div className="text-sm text-gray-400 mb-2">
+                                <Calendar className="inline h-4 w-4 mr-1" />
+                                {formatDate(game.gameTime)}
+                              </div>
+                              <div className="font-semibold text-lg text-white">
+                                {game.awayTeam} @ {game.homeTeam}
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
+                                <span className="text-sm text-gray-300">{game.awayTeam}</span>
+                                <span className="font-medium text-yellow-400">
+                                  {game.awaySpread === 0 ? 'TBD' : `+${Math.abs(game.awaySpread)}`}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
+                                <span className="text-sm text-gray-300">{game.homeTeam}</span>
+                                <span className="font-medium text-yellow-400">
+                                  {game.homeSpread === 0 ? 'TBD' : game.homeSpread}
+                                </span>
+                              </div>
+                            </div>
+
+                            {game.spreadsSet ? (
+                              <div className="mt-4 space-y-3">
+                                <select 
+                                  id={`team-select-${game.id}`}
+                                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
+                                >
+                                  <option value="">Select team</option>
+                                  <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
+                                  <option value={`${game.awayTeam}|${game.awaySpread}`}>{game.awayTeam} (+{Math.abs(game.awaySpread)})</option>
+                                </select>
+
+                                <input
+                                  id={`amount-${game.id}`}
+                                  type="number"
+                                  placeholder="Wager amount"
+                                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
+                                  min="1"
+                                  max={user?.coins}
+                                />
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const teamSelect = document.getElementById(`team-select-${game.id}`);
+                                    const amountInput = document.getElementById(`amount-${game.id}`);
+                                    
+                                    if (!teamSelect.value || !amountInput.value) {
+                                      alert('Please select a team and enter an amount');
+                                      return;
+                                    }
+
+                                    const [team, spread] = teamSelect.value.split('|');
+                                    const amount = parseInt(amountInput.value);
+
+                                    if (amount < 1) {
+                                      alert('Amount must be at least 1 coin');
+                                      return;
+                                    }
+
+                                    addToCart(game.id, team, amount, parseFloat(spread));
+                                    teamSelect.value = '';
+                                    amountInput.value = '';
+                                  }}
+                                  disabled={loading}
+                                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
+                                >
+                                  Add to Cart
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="mt-4 p-3 bg-yellow-900 border border-yellow-600 rounded-md">
+                                <div className="flex items-center text-yellow-400 text-sm">
+                                  <Calendar className="h-4 w-4 mr-2" />
+                                  Spreads not set - betting unavailable
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </div>
-
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
-                        <span className="text-sm text-gray-300">{game.awayTeam}</span>
-                        <span className="font-medium text-yellow-400">+{Math.abs(game.awaySpread)}</span>
-                      </div>
-                      <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
-                        <span className="text-sm text-gray-300">{game.homeTeam}</span>
-                        <span className="font-medium text-yellow-400">{game.homeSpread}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 space-y-3">
-                      <select 
-                        id={`team-select-${game.id}`}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
-                      >
-                        <option value="">Select team</option>
-                        <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
-                        <option value={`${game.awayTeam}|${game.awaySpread}`}>{game.awayTeam} (+{Math.abs(game.awaySpread)})</option>
-                      </select>
-
-                      <input
-                        id={`amount-${game.id}`}
-                        type="number"
-                        placeholder="Wager amount"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
-                        min="1"
-                        max={user?.coins}
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const teamSelect = document.getElementById(`team-select-${game.id}`);
-                          const amountInput = document.getElementById(`amount-${game.id}`);
-                          
-                          if (!teamSelect.value || !amountInput.value) {
-                            alert('Please select a team and enter an amount');
-                            return;
-                          }
-
-                          const [team, spread] = teamSelect.value.split('|');
-                          const amount = parseInt(amountInput.value);
-
-                          if (amount < 1) {
-                            alert('Amount must be at least 1 coin');
-                            return;
-                          }
-
-                          addToCart(game.id, team, amount, parseFloat(spread));
-                          teamSelect.value = '';
-                          amountInput.value = '';
-                        }}
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  )
+                ));
+              })()}
+              
+              {games.length === 0 && (
+                <div className="text-center py-12">
+                  <Calendar className="mx-auto h-12 w-12 text-gray-600 mb-4" />
+                  <p className="text-gray-400 text-lg">No games available</p>
+                  <p className="text-gray-500 text-sm">Games will appear here once loaded from ESPN</p>
+                </div>
+              )}
             </div>
           )}
 
