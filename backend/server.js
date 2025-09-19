@@ -55,8 +55,22 @@ app.get('/health', (req, res) => {
 console.log('Setting up middleware...');
 
 try {
-  app.use(cors());
-  console.log('✓ CORS middleware added');
+  // Configure CORS to allow your frontend domain
+  const corsOptions = {
+    origin: [
+      'https://www.andyszipline.club',
+      'https://andyszipline.club',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  };
+  
+  app.use(cors(corsOptions));
+  console.log('✓ CORS middleware added with origins:', corsOptions.origin);
   
   app.use(express.json());
   console.log('✓ JSON middleware added');
