@@ -228,14 +228,7 @@ app.get('/api/games', authenticateToken, async (req, res) => {
     const response = await axios.get('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
     const espnGames = response.data.events;
     
-    // Filter for SUNDAY games only (day 0 = Sunday)
-    const relevantGames = espnGames.filter(event => {
-      const gameDate = new Date(event.date);
-      const dayOfWeek = gameDate.getDay();
-      
-      // Only include Sunday games
-      return dayOfWeek === 0;
-    });
+
 
     console.log(`Found ${relevantGames.length} relevant Sunday NFL games`);
 
