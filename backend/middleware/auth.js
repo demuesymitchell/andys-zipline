@@ -1,73 +1,39 @@
-// backend/routes/auth.js
-// Authentication routes
+// backend/middleware/auth.js
+// Authentication and authorization middleware
 
-const express = require('express');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const router = express.Router();
-
-const storage = require('../data/storage');
 const config = require('../config/constants');
-const { authenticateToken } = require('../middleware/auth');
 
-// Login
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  
-  const user = storage.users.find(u => u.username === username);
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+// Auth middleware - verify JWT token
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.sendStatus(401);
   }
 
-  const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-
-  const token = jwt.sign(
-    { userId: user.id, username: user.username },
-    config.JWT_SECRET,
-    { expiresIn: '24h' }
-  );
-
-  res.json({
-    token,
-    user: {
-      id: user.id,
-      username: user.username,
-      coins: user.coins,
-      isAdmin: user.isAdmin || false
-    }
+  jwt.verify(token, config.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
   });
-});
+};
 
-// Get current user info
-router.get('/user', authenticateToken, (req, res) => {
-  const user = storage.users.find(u => u.id === req.user.userId);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+// Admin middleware - check if user is admin
+const authenticateAdmin = (req, res, next) => {
+  console.log('Admin auth check for user:', req.user.username);
+  if (req.user.username !== 'admin' && req.user.username !== 'AndyM') {
+    console.log('Access denied for user:', req.user.username);
+    return res.status(403).json({ error: 'Access denied: Admin privileges required' });
   }
-  
-  res.json({
-    id: user.id,
-    username: user.username,
-    coins: user.coins,
-    isAdmin: user.isAdmin || false
-  });
-});
+  console.log('Admin access granted for:', req.user.username);
+  next();
+};
 
-// Get leaderboard
-router.get('/leaderboard', authenticateToken, (req, res) => {
-  const leaderboard = storage.users
-    .filter(u => !u.hideFromLeaderboard)
-    .map(u => ({
-      id: u.id,
-      username: u.username,
-      coins: u.coins
-    }))
-    .sort((a, b) => b.coins - a.coins);
-  
-  res.json(leaderboard);
-});
+module.exports = {
+  authenticateToken,
+  authenticateAdmin
+};
 
-module.exports = router;
+// NOTHING SHOULD BE AFTER THIS LINE!
