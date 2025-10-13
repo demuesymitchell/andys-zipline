@@ -221,28 +221,23 @@ app.post('/api/admin/users', authenticateToken, authenticateAdmin, async (req, r
   });
 });
 
-// Get NFL games
+// Get NFL games - UPDATED FOR WEEK 7 SUNDAY ONLY
 app.get('/api/games', authenticateToken, async (req, res) => {
   try {
     // Try to fetch live NFL data from ESPN
     const response = await axios.get('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
     const espnGames = response.data.events;
     
+    // Filter for SUNDAY games only (day 0 = Sunday)
     const relevantGames = espnGames.filter(event => {
       const gameDate = new Date(event.date);
       const dayOfWeek = gameDate.getDay();
-      const hour = gameDate.getUTCHours();
       
-      if (dayOfWeek === 0) {
-        return hour >= 17 || hour <= 4;
-      } else if (dayOfWeek === 1) {
-        return hour >= 23 || hour <= 4;
-      }
-      
-      return false;
+      // Only include Sunday games
+      return dayOfWeek === 0;
     });
 
-    console.log(`Found ${relevantGames.length} relevant NFL games`);
+    console.log(`Found ${relevantGames.length} relevant Sunday NFL games`);
 
     let apiGames = relevantGames.map((event, index) => {
       const homeTeam = event.competitions[0].competitors.find(team => team.homeAway === 'home');
@@ -274,132 +269,122 @@ app.get('/api/games', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch NFL data:', error.message);
     
-    // Week 3 fallback games
-    const week3Games = [
+    // Week 7 Sunday fallback games (October 19, 2025) - ACTUAL MATCHUPS
+    const week7SundayGames = [
       {
         id: 1,
-        homeTeam: 'Jacksonville Jaguars',
-        awayTeam: 'Houston Texans',
+        homeTeam: 'Chicago Bears',
+        awayTeam: 'New Orleans Saints',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T17:00:00.000Z',
+        gameTime: '2025-10-19T17:00:00.000Z', // 1:00 PM ET
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 2,
-        homeTeam: 'Minnesota Vikings',
-        awayTeam: 'Cincinnati Bengals',
+        homeTeam: 'Cleveland Browns',
+        awayTeam: 'Miami Dolphins',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T17:00:00.000Z',
+        gameTime: '2025-10-19T17:00:00.000Z',
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 3,
-        homeTeam: 'Green Bay Packers',
-        awayTeam: 'Cleveland Browns',
+        homeTeam: 'Tennessee Titans',
+        awayTeam: 'New England Patriots',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T17:00:00.000Z',
+        gameTime: '2025-10-19T17:00:00.000Z',
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 4,
-        homeTeam: 'Pittsburgh Steelers',
-        awayTeam: 'New England Patriots',
+        homeTeam: 'Kansas City Chiefs',
+        awayTeam: 'Las Vegas Raiders',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T17:00:00.000Z',
+        gameTime: '2025-10-19T17:00:00.000Z',
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 5,
-        homeTeam: 'Tampa Bay Buccaneers',
-        awayTeam: 'New York Jets',
+        homeTeam: 'Minnesota Vikings',
+        awayTeam: 'Philadelphia Eagles',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T17:00:00.000Z',
+        gameTime: '2025-10-19T17:00:00.000Z',
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 6,
-        homeTeam: 'Indianapolis Colts',
-        awayTeam: 'Tennessee Titans',
+        homeTeam: 'New York Jets',
+        awayTeam: 'Carolina Panthers',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T17:00:00.000Z',
+        gameTime: '2025-10-19T17:00:00.000Z',
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 7,
-        homeTeam: 'Philadelphia Eagles',
-        awayTeam: 'Los Angeles Rams',
+        homeTeam: 'Denver Broncos',
+        awayTeam: 'New York Giants',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T17:00:00.000Z',
+        gameTime: '2025-10-19T20:05:00.000Z', // 4:05 PM ET
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 8,
         homeTeam: 'Los Angeles Chargers',
-        awayTeam: 'Denver Broncos',
+        awayTeam: 'Indianapolis Colts',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T20:05:00.000Z',
+        gameTime: '2025-10-19T20:05:00.000Z',
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 9,
-        homeTeam: 'Seattle Seahawks',
-        awayTeam: 'New Orleans Saints',
+        homeTeam: 'Dallas Cowboys',
+        awayTeam: 'Washington Commanders',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T20:05:00.000Z',
+        gameTime: '2025-10-19T20:25:00.000Z', // 4:25 PM ET
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 10,
-        homeTeam: 'Chicago Bears',
-        awayTeam: 'Dallas Cowboys',
+        homeTeam: 'Arizona Cardinals',
+        awayTeam: 'Green Bay Packers',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T20:25:00.000Z',
+        gameTime: '2025-10-19T20:25:00.000Z',
         status: 'upcoming',
         spreadsSet: false
       },
       {
         id: 11,
         homeTeam: 'San Francisco 49ers',
-        awayTeam: 'Arizona Cardinals',
+        awayTeam: 'Atlanta Falcons',
         homeSpread: 0,
         awaySpread: 0,
-        gameTime: '2025-09-21T20:25:00.000Z',
-        status: 'upcoming',
-        spreadsSet: false
-      },
-      {
-        id: 12,
-        homeTeam: 'New York Giants',
-        awayTeam: 'Kansas City Chiefs',
-        homeSpread: 0,
-        awaySpread: 0,
-        gameTime: '2025-09-22T00:20:00.000Z',
+        gameTime: '2025-10-20T00:20:00.000Z', // 8:20 PM ET Sunday Night
         status: 'upcoming',
         spreadsSet: false
       }
     ];
     
-    games = week3Games;
-    res.json(week3Games);
+    games = week7SundayGames;
+    res.json(week7SundayGames);
   }
 });
 
