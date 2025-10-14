@@ -3,7 +3,7 @@ import React from 'react';
 
 const Navigation = ({ activeTab, setActiveTab, user, groupedPendingWagers }) => {
   const tabs = ['games', 'wagers', 'leaderboard'];
-  if (user?.isAdmin) tabs.push('admin');
+if (user?.isAdmin || user?.is_admin) tabs.push('admin');
 
   return (
     <nav className="bg-gray-800 shadow-sm border-b border-gray-700">
@@ -20,7 +20,7 @@ const Navigation = ({ activeTab, setActiveTab, user, groupedPendingWagers }) => 
               }`}
             >
               {tab}
-              {tab === 'admin' && user?.isAdmin && groupedPendingWagers.length > 0 && ` (${groupedPendingWagers.length})`}
+{tab === 'admin' && (user?.isAdmin || user?.is_admin) && groupedPendingWagers.length > 0 && ` (${groupedPendingWagers.length})`}
             </button>
           ))}
         </div>
