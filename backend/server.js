@@ -77,7 +77,14 @@ app.get('/api/user', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(result.rows[0]);
+    const user = result.rows[0];
+    // Convert database fields to camelCase for frontend
+    res.json({
+      id: user.id,
+      username: user.username,
+      coins: user.coins,
+      isAdmin: user.is_admin  // ← Convert is_admin to isAdmin
+    });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error' });
