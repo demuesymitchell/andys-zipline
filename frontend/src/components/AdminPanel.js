@@ -154,7 +154,7 @@ const AdminPanel = ({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {games.map((game) => {
                 const preview = getSpreadPreview(game.id);
-                const currentValue = spreadInputs[game.id] !== undefined ? spreadInputs[game.id] : game.homeSpread;
+                const currentValue = spreadInputs[game.id] !== undefined ? spreadInputs[game.id] : game.spread;
                 const isLocked = game.locked || false;
                 
                 return (
@@ -163,10 +163,10 @@ const AdminPanel = ({
                     <div className="mb-3 flex items-start justify-between">
                       <div className="flex-1">
                         <p className="font-semibold text-base text-white mb-1">
-                          {game.awayTeam} @ {game.homeTeam}
+                          {game.away_team} @ {game.home_team}
                         </p>
                         <p className="text-xs text-gray-400">
-                          {formatDate(game.gameTime)}
+                          {game.game_date} • {game.game_time}
                         </p>
                       </div>
                       <button
@@ -193,7 +193,7 @@ const AdminPanel = ({
                     {/* Spread Input */}
                     <div className="mb-3">
                       <label className="block text-xs font-medium text-gray-300 mb-2">
-                        Home Team Spread ({game.homeTeam}):
+                        Home Team Spread ({game.home_team}):
                       </label>
                       <div className="flex items-center space-x-2">
                         <input
@@ -226,13 +226,13 @@ const AdminPanel = ({
                       <p className="text-xs text-gray-400 mb-2">Preview:</p>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="flex items-center justify-between p-2 bg-gray-700 rounded">
-                          <span className="text-xs text-gray-300 truncate">{game.awayTeam}</span>
+                          <span className="text-xs text-gray-300 truncate">{game.away_team}</span>
                           <span className={`font-bold text-sm ${preview.away > 0 ? 'text-green-400' : preview.away < 0 ? 'text-red-400' : 'text-gray-400'}`}>
                             {preview.away > 0 ? '+' : ''}{preview.away || 'PK'}
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-2 bg-gray-700 rounded">
-                          <span className="text-xs text-gray-300 truncate">{game.homeTeam}</span>
+                          <span className="text-xs text-gray-300 truncate">{game.home_team}</span>
                           <span className={`font-bold text-sm ${preview.home > 0 ? 'text-green-400' : preview.home < 0 ? 'text-red-400' : 'text-gray-400'}`}>
                             {preview.home > 0 ? '+' : ''}{preview.home || 'PK'}
                           </span>
@@ -288,7 +288,7 @@ const AdminPanel = ({
                         <span className="text-blue-400 ml-2">({wager.spread > 0 ? '+' : ''}{wager.spread})</span>
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
-                        {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
+                        {game ? `${game.away_team} @ ${game.home_team}` : 'Game not found'}
                       </p>
                     </div>
 
