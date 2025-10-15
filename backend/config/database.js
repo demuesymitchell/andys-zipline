@@ -46,8 +46,15 @@ const initDatabase = async () => {
         home_score INTEGER,
         away_score INTEGER,
         status VARCHAR(20) DEFAULT 'scheduled',
+        locked BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+
+    // Add locked column to existing games table if it doesn't exist
+    await client.query(`
+      ALTER TABLE games 
+      ADD COLUMN IF NOT EXISTS locked BOOLEAN DEFAULT false
     `);
 
     // Wagers table

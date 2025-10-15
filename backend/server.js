@@ -83,7 +83,7 @@ app.get('/api/user', authenticateToken, async (req, res) => {
       id: user.id,
       username: user.username,
       coins: user.coins,
-      isAdmin: user.is_admin  // ← Convert is_admin to isAdmin
+      isAdmin: user.is_admin
     });
   } catch (error) {
     console.error('Get user error:', error);
@@ -390,6 +390,23 @@ app.post('/api/admin/games/:id/spread', authenticateToken, authenticateAdmin, as
     res.json({ message: 'Spread updated' });
   } catch (error) {
     console.error('Update spread error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Lock/Unlock game (admin) ← NEW ENDPOINT
+app.post('/api/admin/games/:id/lock', authenticateToken, authenticateAdmin, async (req, res) => {
+  try {
+    const { locked } = req.body;
+    
+    await pool.query(
+      'UPDATE games SET locked = $1 WHERE id = $2',
+      [locked, req.params.id]
+    );
+    
+    res.json({ message: `Game ${locked ? 'locked' : 'unlocked'} successfully` });
+  } catch (error) {
+    console.error('Lock game error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

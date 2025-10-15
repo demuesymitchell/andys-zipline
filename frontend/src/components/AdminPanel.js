@@ -1,6 +1,6 @@
 // frontend/src/components/AdminPanel.js
 import React, { useState } from 'react';
-import { Check, X, ChevronDown, ChevronUp, Plus, Coins, TrendingDown, TrendingUp } from 'lucide-react';
+import { Check, X, ChevronDown, ChevronUp, Plus, Coins, TrendingDown, TrendingUp, Lock, Unlock } from 'lucide-react';
 
 const AdminPanel = ({
   adminSections,
@@ -20,9 +20,14 @@ const AdminPanel = ({
 }) => {
   // Local state for spread inputs
   const [spreadInputs, setSpreadInputs] = useState({});
+  const [lockedGames, setLockedGames] = useState({});
 
   const updateSpreadInput = (gameId, value) => {
     setSpreadInputs(prev => ({ ...prev, [gameId]: value }));
+  };
+
+  const toggleGameLock = (gameId) => {
+    setLockedGames(prev => ({ ...prev, [gameId]: !prev[gameId] }));
   };
 
   const getSpreadPreview = (gameId) => {
@@ -134,18 +139,39 @@ const AdminPanel = ({
               {games.map((game) => {
                 const preview = getSpreadPreview(game.id);
                 const currentValue = spreadInputs[game.id] !== undefined ? spreadInputs[game.id] : game.homeSpread;
+                const isLocked = lockedGames[game.id] || false;
                 
                 return (
-                  <div key={game.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
-                    {/* Game Header */}
-                    <div className="mb-3">
-                      <p className="font-semibold text-base text-white mb-1">
-                        {game.awayTeam} @ {game.homeTeam}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {formatDate(game.gameTime)}
-                      </p>
+                  <div key={game.id} className={`border rounded-lg p-4 transition-all ${isLocked ? 'border-red-500 bg-gray-750' : 'border-gray-600 bg-gray-700'}`}>
+                    {/* Game Header with Lock Button */}
+                    <div className="mb-3 flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="font-semibold text-base text-white mb-1">
+                          {game.awayTeam} @ {game.homeTeam}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {formatDate(game.gameTime)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => toggleGameLock(game.id)}
+                        className={`ml-2 p-2 rounded-md transition-colors ${
+                          isLocked 
+                            ? 'bg-red-600 hover:bg-red-700 text-white' 
+                            : 'bg-gray-600 hover:bg-gray-500 text-gray-300'
+                        }`}
+                        title={isLocked ? 'Unlock game for betting' : 'Lock game (prevent betting)'}
+                      >
+                        {isLocked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+                      </button>
                     </div>
+
+                    {isLocked && (
+                      <div className="mb-3 p-2 bg-red-900 border border-red-600 rounded text-xs text-red-300 flex items-center">
+                        <Lock className="h-3 w-3 mr-2" />
+                        Game locked - betting disabled
+                      </div>
+                    )}
 
                     {/* Spread Input */}
                     <div className="mb-3">
@@ -175,22 +201,6 @@ const AdminPanel = ({
                         >
                           Set
                         </button>
-                      </div>
-                    </div>
-
-                    {/* Quick Set Buttons */}
-                    <div className="mb-3">
-                      <p className="text-xs text-gray-400 mb-2">Quick Set:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {[-14, -7, -3, 0, 3, 7, 14].map(val => (
-                          <button
-                            key={val}
-                            onClick={() => updateSpreadInput(game.id, val)}
-                            className="px-2 py-1 bg-gray-600 text-white text-xs rounded hover:bg-blue-600 transition-colors"
-                          >
-                            {val > 0 ? `+${val}` : val}
-                          </button>
-                        ))}
                       </div>
                     </div>
 

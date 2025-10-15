@@ -1,6 +1,6 @@
 // frontend/src/components/GamesTab.js
 import React from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, Lock } from 'lucide-react';
 
 const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loading }) => {
   const timeSlots = {
@@ -54,8 +54,15 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
             </div>
             
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {slotGames.map((game) => (
-                <div key={game.id} className="bg-gray-800 rounded-lg shadow p-6 border-l-4 border-blue-500 hover:border-blue-400 transition-colors">
+              {slotGames.map((game) => {
+                const isLocked = game.locked || false;
+                
+                return (
+                  <div key={game.id} className={`rounded-lg shadow p-6 border-l-4 transition-colors ${
+                    isLocked 
+                      ? 'bg-gray-900 border-gray-600 opacity-60' 
+                      : 'bg-gray-800 border-blue-500 hover:border-blue-400'
+                  }`}>
                   <div className="text-center mb-4">
                     <div className="text-sm text-gray-400 mb-2">
                       <Calendar className="inline h-4 w-4 mr-1" />
@@ -81,7 +88,14 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                     </div>
                   </div>
 
-                  {game.spreadsSet ? (
+                  {isLocked ? (
+                    <div className="mt-4 p-3 bg-gray-700 border border-gray-600 rounded-md">
+                      <div className="flex items-center text-gray-400 text-sm">
+                        <Lock className="h-4 w-4 mr-2" />
+                        Game locked - betting unavailable
+                      </div>
+                    </div>
+                  ) : game.spreadsSet ? (
                     <div className="mt-4 space-y-3">
                       <select 
                         id={`team-select-${game.id}`}
@@ -139,7 +153,8 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                     </div>
                   )}
                 </div>
-              ))}
+              );
+              })}
             </div>
           </div>
         )
