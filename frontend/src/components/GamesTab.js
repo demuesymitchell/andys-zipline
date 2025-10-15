@@ -48,14 +48,14 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
           <div key={timeSlot} className="space-y-4">
             <div className="border-b border-gray-700 pb-2">
               <h3 className="text-xl font-semibold text-white flex items-center">
-                <Calendar className="h-5 w-5 mr-2 text-emerald-500" />
+                <Calendar className="h-5 w-5 mr-2 text-blue-500" />
                 {timeSlot} Games
               </h3>
             </div>
             
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {slotGames.map((game) => (
-                <div key={game.id} className="bg-gray-800 rounded-lg shadow p-6 border-l-4 border-emerald-500">
+                <div key={game.id} className="bg-gray-800 rounded-lg shadow p-6 border-l-4 border-blue-500 hover:border-blue-400 transition-colors">
                   <div className="text-center mb-4">
                     <div className="text-sm text-gray-400 mb-2">
                       <Calendar className="inline h-4 w-4 mr-1" />
@@ -67,13 +67,13 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
+                    <div className="flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-650 transition-colors">
                       <span className="text-sm text-gray-300">{game.awayTeam}</span>
                       <span className="font-medium text-yellow-400">
                         {game.awaySpread === 0 ? 'TBD' : `+${Math.abs(game.awaySpread)}`}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
+                    <div className="flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-650 transition-colors">
                       <span className="text-sm text-gray-300">{game.homeTeam}</span>
                       <span className="font-medium text-yellow-400">
                         {game.homeSpread === 0 ? 'TBD' : game.homeSpread}
@@ -85,7 +85,7 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                     <div className="mt-4 space-y-3">
                       <select 
                         id={`team-select-${game.id}`}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-500 transition-colors"
                       >
                         <option value="">Select team</option>
                         <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
@@ -96,7 +96,7 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                         id={`amount-${game.id}`}
                         type="number"
                         placeholder="Wager amount"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm"
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-500 transition-colors"
                         min="1"
                         max={user?.coins}
                       />
@@ -125,7 +125,7 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                           amountInput.value = '';
                         }}
                         disabled={loading}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors text-sm"
                       >
                         Add to Cart
                       </button>
