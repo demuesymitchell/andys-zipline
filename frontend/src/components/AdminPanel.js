@@ -130,36 +130,36 @@ const AdminPanel = ({
         
         {adminSections.spreads && (
           <div className="p-6">
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {games.map((game) => {
                 const preview = getSpreadPreview(game.id);
                 const currentValue = spreadInputs[game.id] !== undefined ? spreadInputs[game.id] : game.homeSpread;
                 
                 return (
-                  <div key={game.id} className="border border-gray-600 rounded-lg p-5 bg-gray-700">
+                  <div key={game.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
                     {/* Game Header */}
-                    <div className="mb-4">
-                      <p className="font-semibold text-lg text-white mb-1">
+                    <div className="mb-3">
+                      <p className="font-semibold text-base text-white mb-1">
                         {game.awayTeam} @ {game.homeTeam}
                       </p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-xs text-gray-400">
                         {formatDate(game.gameTime)}
                       </p>
                     </div>
 
                     {/* Spread Input */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Enter Home Team Spread ({game.homeTeam}):
+                    <div className="mb-3">
+                      <label className="block text-xs font-medium text-gray-300 mb-2">
+                        Home Team Spread ({game.homeTeam}):
                       </label>
                       <div className="flex items-center space-x-2">
                         <input
                           type="number"
                           step="0.5"
-                          placeholder="e.g., -7 or +3"
+                          placeholder="-7"
                           value={currentValue}
                           onChange={(e) => updateSpreadInput(game.id, e.target.value)}
-                          className="flex-1 px-4 py-2 bg-gray-600 border border-gray-500 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <button
                           onClick={() => {
@@ -171,22 +171,22 @@ const AdminPanel = ({
                             handleUpdateSpread(game.id, newSpread);
                           }}
                           disabled={loading}
-                          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+                          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm font-medium whitespace-nowrap"
                         >
-                          Set Spread
+                          Set
                         </button>
                       </div>
                     </div>
 
                     {/* Quick Set Buttons */}
-                    <div className="mb-4">
-                      <p className="text-xs text-gray-400 mb-2">Quick Set (Home Team):</p>
-                      <div className="flex flex-wrap gap-2">
-                        {[-14, -10, -7, -3, -1, 0, 1, 3, 7, 10, 14].map(val => (
+                    <div className="mb-3">
+                      <p className="text-xs text-gray-400 mb-2">Quick Set:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {[-14, -7, -3, 0, 3, 7, 14].map(val => (
                           <button
                             key={val}
                             onClick={() => updateSpreadInput(game.id, val)}
-                            className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                            className="px-2 py-1 bg-gray-600 text-white text-xs rounded hover:bg-blue-600 transition-colors"
                           >
                             {val > 0 ? `+${val}` : val}
                           </button>
@@ -195,19 +195,19 @@ const AdminPanel = ({
                     </div>
 
                     {/* Preview */}
-                    <div className="bg-gray-600 rounded-lg p-4">
+                    <div className="bg-gray-600 rounded-lg p-3">
                       <p className="text-xs text-gray-400 mb-2">Preview:</p>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-2">
                         <div className="flex items-center justify-between p-2 bg-gray-700 rounded">
-                          <span className="text-sm text-gray-300">{game.awayTeam}</span>
-                          <span className={`font-bold text-lg ${preview.away > 0 ? 'text-green-400' : preview.away < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-                            {preview.away > 0 ? '+' : ''}{preview.away || 'EVEN'}
+                          <span className="text-xs text-gray-300 truncate">{game.awayTeam}</span>
+                          <span className={`font-bold text-sm ${preview.away > 0 ? 'text-green-400' : preview.away < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                            {preview.away > 0 ? '+' : ''}{preview.away || 'PK'}
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-2 bg-gray-700 rounded">
-                          <span className="text-sm text-gray-300">{game.homeTeam}</span>
-                          <span className={`font-bold text-lg ${preview.home > 0 ? 'text-green-400' : preview.home < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-                            {preview.home > 0 ? '+' : ''}{preview.home || 'EVEN'}
+                          <span className="text-xs text-gray-300 truncate">{game.homeTeam}</span>
+                          <span className={`font-bold text-sm ${preview.home > 0 ? 'text-green-400' : preview.home < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                            {preview.home > 0 ? '+' : ''}{preview.home || 'PK'}
                           </span>
                         </div>
                       </div>
