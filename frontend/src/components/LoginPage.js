@@ -97,7 +97,7 @@ const LoginPage = ({ loginForm, setLoginForm, handleLogin, loading }) => {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="bg-gray-800 rounded-lg shadow-2xl p-8 w-full max-w-md border border-gray-700">
           <div className="text-center mb-8">
-            <Lock className="mx-auto h-12 w-12 text-emerald-500 mb-4" />
+            <Lock className="mx-auto h-12 w-12 text-blue-500 mb-4" />
             <h1 className="text-3xl font-bold text-white">Andy's Zipline</h1>
             <p className="text-gray-400 mt-2">Login to access your account</p>
           </div>
@@ -130,7 +130,7 @@ const LoginPage = ({ loginForm, setLoginForm, handleLogin, loading }) => {
               type="button"
               onClick={handleLogin}
               disabled={loading || !loginForm.username || !loginForm.password}
-              className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 transition-colors"
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
