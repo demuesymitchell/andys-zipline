@@ -113,7 +113,7 @@ const App = () => {
 
   const fetchGroupedPendingWagers = async () => {
     try {
-      const pendingData = await apiCall('/admin/wagers/pending/grouped', token);
+      const pendingData = await apiCall('/admin/wagers/pending', token);
       setGroupedPendingWagers(pendingData);
     } catch (error) {
       console.error('Failed to fetch grouped pending wagers:', error);
@@ -242,20 +242,20 @@ const App = () => {
     setLoading(false);
   };
 
-  const handleUpdateSpread = async (gameId, homeSpread) => {
-    setLoading(true);
-    try {
-      await apiCall(`/admin/games/${gameId}/spreads`, token, {
-        method: 'PUT',
-        body: JSON.stringify({ homeSpread })
-      });
-      fetchGames();
-      alert('Spread updated successfully!');
-    } catch (error) {
-      alert('Failed to update spread.');
-    }
-    setLoading(false);
-  };
+const handleUpdateSpread = async (gameId, homeSpread) => {
+  setLoading(true);
+  try {
+    await apiCall(`/admin/games/${gameId}/spread`, token, {
+      method: 'POST',
+      body: JSON.stringify({ spread: homeSpread })
+    });
+    fetchGames();
+    alert('Spread updated successfully!');
+  } catch (error) {
+    alert('Failed to update spread.');
+  }
+  setLoading(false);
+};
 
   const handleCreateUser = async () => {
     setLoading(true);

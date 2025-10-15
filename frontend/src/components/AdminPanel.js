@@ -20,14 +20,30 @@ const AdminPanel = ({
 }) => {
   // Local state for spread inputs
   const [spreadInputs, setSpreadInputs] = useState({});
-  const [lockedGames, setLockedGames] = useState({});
 
   const updateSpreadInput = (gameId, value) => {
     setSpreadInputs(prev => ({ ...prev, [gameId]: value }));
   };
 
-  const toggleGameLock = (gameId) => {
-    setLockedGames(prev => ({ ...prev, [gameId]: !prev[gameId] }));
+  const handleToggleLock = async (gameId, currentLockStatus) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://andys-zipline-production.up.railway.app'}/api/admin/games/${gameId}/lock`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ locked: !currentLockStatus })
+      });
+
+      if (!response.ok) throw new Error('Failed to toggle lock');
+      
+      // Refresh games to get updated lock status
+      window.location.reload();
+    } catch (error) {
+      alert('Failed to toggle game lock');
+      console.error(error);
+    }
   };
 
   const getSpreadPreview = (gameId) => {
@@ -139,7 +155,7 @@ const AdminPanel = ({
               {games.map((game) => {
                 const preview = getSpreadPreview(game.id);
                 const currentValue = spreadInputs[game.id] !== undefined ? spreadInputs[game.id] : game.homeSpread;
-                const isLocked = lockedGames[game.id] || false;
+                const isLocked = game.locked || false;
                 
                 return (
                   <div key={game.id} className={`border rounded-lg p-4 transition-all ${isLocked ? 'border-red-500 bg-gray-750' : 'border-gray-600 bg-gray-700'}`}>
@@ -154,12 +170,13 @@ const AdminPanel = ({
                         </p>
                       </div>
                       <button
-                        onClick={() => toggleGameLock(game.id)}
+                        onClick={() => handleToggleLock(game.id, isLocked)}
+                        disabled={loading}
                         className={`ml-2 p-2 rounded-md transition-colors ${
                           isLocked 
                             ? 'bg-red-600 hover:bg-red-700 text-white' 
                             : 'bg-gray-600 hover:bg-gray-500 text-gray-300'
-                        }`}
+                        } disabled:opacity-50`}
                         title={isLocked ? 'Unlock game for betting' : 'Lock game (prevent betting)'}
                       >
                         {isLocked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
