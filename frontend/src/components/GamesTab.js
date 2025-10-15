@@ -56,6 +56,8 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {slotGames.map((game) => {
                 const isLocked = game.locked || false;
+                // Check if spread is actually set (not null/undefined and not 0)
+                const hasSpread = game.spread !== null && game.spread !== undefined && game.spread !== 0;
                 
                 return (
                   <div key={game.id} className={`rounded-lg shadow p-6 border-l-4 transition-colors ${
@@ -66,10 +68,10 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                   <div className="text-center mb-4">
                     <div className="text-sm text-gray-400 mb-2">
                       <Calendar className="inline h-4 w-4 mr-1" />
-                      {formatDate(game.gameTime)}
+                      {game.game_date} - {game.game_time}
                     </div>
                     <div className="font-semibold text-lg text-white">
-                      {game.awayTeam} @ {game.homeTeam}
+                      {game.away_team} @ {game.home_team}
                     </div>
                   </div>
 
@@ -77,13 +79,13 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                     <div className="flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-650 transition-colors">
                       <span className="text-sm text-gray-300">{game.away_team}</span>
                       <span className="font-medium text-yellow-400">
-                        {!game.spread || game.spread === 0 ? 'TBD' : `+${Math.abs(game.spread)}`}
+                        {!hasSpread ? 'TBD' : `+${Math.abs(game.spread)}`}
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-650 transition-colors">
                       <span className="text-sm text-gray-300">{game.home_team}</span>
                       <span className="font-medium text-yellow-400">
-                        {!game.spread || game.spread === 0 ? 'TBD' : game.spread}
+                        {!hasSpread ? 'TBD' : game.spread}
                       </span>
                     </div>
                   </div>
@@ -95,15 +97,15 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                         Game locked - betting unavailable
                       </div>
                     </div>
-                  ) : (game.spread !== null && game.spread !== undefined && game.spread !== 0) ? (
+                  ) : (
                     <div className="mt-4 space-y-3">
                       <select 
                         id={`team-select-${game.id}`}
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-500 transition-colors"
                       >
                         <option value="">Select team</option>
-                        <option value={`${game.homeTeam}|${game.homeSpread}`}>{game.homeTeam} ({game.homeSpread})</option>
-                        <option value={`${game.awayTeam}|${game.awaySpread}`}>{game.awayTeam} (+{Math.abs(game.awaySpread)})</option>
+                        <option value={`${game.home_team}|${game.spread}`}>{game.home_team} ({game.spread || 'TBD'})</option>
+                        <option value={`${game.away_team}|${-game.spread}`}>{game.away_team} (+{Math.abs(game.spread) || 'TBD'})</option>
                       </select>
 
                       <input
@@ -138,18 +140,11 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                           teamSelect.value = '';
                           amountInput.value = '';
                         }}
-                        disabled={loading}
+                        disabled={loading || !hasSpread}
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors text-sm"
                       >
-                        Add to Cart
+                        {!hasSpread ? 'Spread Not Set' : 'Add to Cart'}
                       </button>
-                    </div>
-                  ) : (
-                    <div className="mt-4 p-3 bg-yellow-900 border border-yellow-600 rounded-md">
-                      <div className="flex items-center text-yellow-400 text-sm">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Spreads not set - betting unavailable
-                      </div>
                     </div>
                   )}
                 </div>
@@ -164,7 +159,7 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
         <div className="text-center py-12">
           <Calendar className="mx-auto h-12 w-12 text-gray-600 mb-4" />
           <p className="text-gray-400 text-lg">No games available</p>
-          <p className="text-gray-500 text-sm">Games will appear here once loaded from ESPN</p>
+          <p className="text-gray-500 text-sm">Games will appear here once loaded</p>
         </div>
       )}
     </div>
