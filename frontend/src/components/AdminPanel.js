@@ -1,6 +1,6 @@
 // frontend/src/components/AdminPanel.js
-import React from 'react';
-import { Check, X, ChevronDown, ChevronUp, Plus, DollarSign } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, X, ChevronDown, ChevronUp, Plus, Coins, TrendingDown, TrendingUp } from 'lucide-react';
 
 const AdminPanel = ({
   adminSections,
@@ -18,18 +18,39 @@ const AdminPanel = ({
   setAdminForm,
   handleCreateUser
 }) => {
+  // Local state for spread inputs
+  const [spreadInputs, setSpreadInputs] = useState({});
+
+  const updateSpreadInput = (gameId, value) => {
+    setSpreadInputs(prev => ({ ...prev, [gameId]: value }));
+  };
+
+  const getSpreadPreview = (gameId) => {
+    const value = parseFloat(spreadInputs[gameId]) || 0;
+    return {
+      home: value,
+      away: -value
+    };
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-white">Admin Panel</h2>
       
       {/* Pending Wagers - Collapsible */}
-      <div className="bg-gray-800 shadow rounded-lg">
+      <div className="bg-gray-800 shadow rounded-lg border border-gray-700">
         <div 
-          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-700"
+          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-750 transition-colors"
           onClick={() => toggleAdminSection('pending')}
         >
-          <h3 className="text-lg font-medium text-white">
-            Pending Wagers ({groupedPendingWagers.length})
+          <h3 className="text-lg font-medium text-white flex items-center">
+            <Check className="h-5 w-5 mr-2 text-blue-500" />
+            Pending Wagers 
+            {groupedPendingWagers.length > 0 && (
+              <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                {groupedPendingWagers.length}
+              </span>
+            )}
           </h3>
           {adminSections.pending ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
         </div>
@@ -37,23 +58,24 @@ const AdminPanel = ({
         {adminSections.pending && (
           <div className="p-6">
             {groupedPendingWagers.length === 0 ? (
-              <p className="text-gray-400">No pending wagers</p>
+              <p className="text-gray-400 text-center py-4">No pending wagers</p>
             ) : (
               <div className="space-y-4">
                 {groupedPendingWagers.map((userGroup) => (
-                  <div key={userGroup.userId} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
+                  <div key={userGroup.userId} className="border border-gray-600 rounded-lg p-4 bg-gray-700 hover:bg-gray-650 transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h4 className="font-medium text-lg text-white">{userGroup.username}</h4>
-                        <p className="text-sm text-gray-400">
-                          {userGroup.wagers.length} wagers • Total: {userGroup.totalAmount} coins
+                        <p className="text-sm text-gray-400 flex items-center mt-1">
+                          <Coins className="h-4 w-4 mr-1 text-yellow-400" />
+                          {userGroup.wagers.length} wagers • Total: <span className="text-yellow-400 ml-1">{userGroup.totalAmount} coins</span>
                         </p>
                       </div>
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleUserWagerDecision(userGroup.userId, 'approved')}
                           disabled={loading}
-                          className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 disabled:opacity-50 flex items-center"
+                          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center transition-colors"
                         >
                           <Check className="h-4 w-4 mr-1" />
                           Approve All
@@ -61,7 +83,7 @@ const AdminPanel = ({
                         <button
                           onClick={() => handleUserWagerDecision(userGroup.userId, 'rejected')}
                           disabled={loading}
-                          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
+                          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center transition-colors"
                         >
                           <X className="h-4 w-4 mr-1" />
                           Reject All
@@ -71,8 +93,17 @@ const AdminPanel = ({
                     
                     <div className="space-y-2">
                       {userGroup.wagers.map((wager) => (
-                        <div key={wager.id} className="bg-gray-600 p-3 rounded text-sm">
-                          <strong className="text-white">{wager.gameName}</strong> - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread}) - <span className="text-yellow-400">{wager.amount} coins</span>
+                        <div key={wager.id} className="bg-gray-600 p-3 rounded text-sm flex justify-between items-center">
+                          <div>
+                            <strong className="text-white">{wager.gameName}</strong>
+                            <span className="text-gray-300 mx-2">→</span>
+                            <span className="text-gray-300">{wager.team}</span>
+                            <span className="text-blue-400 ml-2">({wager.spread > 0 ? '+' : ''}{wager.spread})</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Coins className="h-4 w-4 mr-1 text-yellow-400" />
+                            <span className="text-yellow-400 font-medium">{wager.amount}</span>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -84,14 +115,119 @@ const AdminPanel = ({
         )}
       </div>
 
-      {/* Game Settlement - Collapsible */}
-      <div className="bg-gray-800 shadow rounded-lg">
+      {/* Game Spreads - Collapsible (MOVED UP) */}
+      <div className="bg-gray-800 shadow rounded-lg border border-gray-700">
         <div 
-          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-700"
+          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-750 transition-colors"
+          onClick={() => toggleAdminSection('spreads')}
+        >
+          <h3 className="text-lg font-medium text-white flex items-center">
+            <TrendingDown className="h-5 w-5 mr-2 text-blue-500" />
+            Set Game Spreads
+          </h3>
+          {adminSections.spreads ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+        </div>
+        
+        {adminSections.spreads && (
+          <div className="p-6">
+            <div className="space-y-6">
+              {games.map((game) => {
+                const preview = getSpreadPreview(game.id);
+                const currentValue = spreadInputs[game.id] !== undefined ? spreadInputs[game.id] : game.homeSpread;
+                
+                return (
+                  <div key={game.id} className="border border-gray-600 rounded-lg p-5 bg-gray-700">
+                    {/* Game Header */}
+                    <div className="mb-4">
+                      <p className="font-semibold text-lg text-white mb-1">
+                        {game.awayTeam} @ {game.homeTeam}
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        {formatDate(game.gameTime)}
+                      </p>
+                    </div>
+
+                    {/* Spread Input */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Enter Home Team Spread ({game.homeTeam}):
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="number"
+                          step="0.5"
+                          placeholder="e.g., -7 or +3"
+                          value={currentValue}
+                          onChange={(e) => updateSpreadInput(game.id, e.target.value)}
+                          className="flex-1 px-4 py-2 bg-gray-600 border border-gray-500 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          onClick={() => {
+                            const newSpread = parseFloat(currentValue);
+                            if (isNaN(newSpread)) {
+                              alert('Please enter a valid number');
+                              return;
+                            }
+                            handleUpdateSpread(game.id, newSpread);
+                          }}
+                          disabled={loading}
+                          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+                        >
+                          Set Spread
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Set Buttons */}
+                    <div className="mb-4">
+                      <p className="text-xs text-gray-400 mb-2">Quick Set (Home Team):</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[-14, -10, -7, -3, -1, 0, 1, 3, 7, 10, 14].map(val => (
+                          <button
+                            key={val}
+                            onClick={() => updateSpreadInput(game.id, val)}
+                            className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                          >
+                            {val > 0 ? `+${val}` : val}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Preview */}
+                    <div className="bg-gray-600 rounded-lg p-4">
+                      <p className="text-xs text-gray-400 mb-2">Preview:</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex items-center justify-between p-2 bg-gray-700 rounded">
+                          <span className="text-sm text-gray-300">{game.awayTeam}</span>
+                          <span className={`font-bold text-lg ${preview.away > 0 ? 'text-green-400' : preview.away < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                            {preview.away > 0 ? '+' : ''}{preview.away || 'EVEN'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-2 bg-gray-700 rounded">
+                          <span className="text-sm text-gray-300">{game.homeTeam}</span>
+                          <span className={`font-bold text-lg ${preview.home > 0 ? 'text-green-400' : preview.home < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                            {preview.home > 0 ? '+' : ''}{preview.home || 'EVEN'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Game Settlement - Collapsible */}
+      <div className="bg-gray-800 shadow rounded-lg border border-gray-700">
+        <div 
+          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-750 transition-colors"
           onClick={() => toggleAdminSection('settlement')}
         >
-          <h3 className="text-lg font-medium text-white">
-            <DollarSign className="inline h-5 w-5 mr-2" />
+          <h3 className="text-lg font-medium text-white flex items-center">
+            <Coins className="h-5 w-5 mr-2 text-yellow-400" />
             Settle Wagers
           </h3>
           {adminSections.settlement ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
@@ -103,121 +239,129 @@ const AdminPanel = ({
               {wagers.filter(w => w.status === 'active').map((wager) => {
                 const game = games.find(g => g.id === wager.gameId);
                 const user = leaderboard.find(u => u.id === wager.userId);
+                const winPayout = wager.amount * 2;
+                const pushPayout = wager.amount;
+                
                 return (
-                  <div key={wager.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
-                    <div className="flex justify-between items-center">
-                      <div className="flex-1">
-                        <p className="font-medium text-white">
-                          {user?.username || 'Unknown'} - {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread})
+                  <div key={wager.id} className="border border-gray-600 rounded-lg p-5 bg-gray-700">
+                    {/* Wager Header */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-semibold text-lg text-white">
+                          {user?.username || 'Unknown'}
                         </p>
-                        <p className="text-sm text-gray-400">
-                          {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'} • {wager.amount} coins
-                        </p>
+                        <div className="flex items-center bg-gray-600 px-3 py-1 rounded">
+                          <Coins className="h-4 w-4 mr-1 text-yellow-400" />
+                          <span className="text-yellow-400 font-medium">{wager.amount}</span>
+                          <span className="text-gray-400 text-sm ml-1">wagered</span>
+                        </div>
                       </div>
-                      <div className="flex space-x-2 ml-4">
-                        <button
-                          onClick={() => handleSettleWager(wager.id, 'win')}
-                          disabled={loading}
-                          className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 disabled:opacity-50"
-                        >
-                          Win
-                        </button>
-                        <button
-                          onClick={() => handleSettleWager(wager.id, 'loss')}
-                          disabled={loading}
-                          className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 disabled:opacity-50"
-                        >
-                          Loss
-                        </button>
-                        <button
-                          onClick={() => handleSettleWager(wager.id, 'push')}
-                          disabled={loading}
-                          className="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 disabled:opacity-50"
-                        >
-                          Push
-                        </button>
+                      <p className="text-sm text-gray-300">
+                        <span className="font-medium">{wager.team}</span>
+                        <span className="text-blue-400 ml-2">({wager.spread > 0 ? '+' : ''}{wager.spread})</span>
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
+                      </p>
+                    </div>
+
+                    {/* Payout Breakdown */}
+                    <div className="bg-gray-600 rounded-lg p-4 mb-4">
+                      <p className="text-xs text-gray-400 mb-3">Payout Options:</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-green-400 flex items-center">
+                            <TrendingUp className="h-4 w-4 mr-2" />
+                            Win
+                          </span>
+                          <div className="flex items-center">
+                            <Coins className="h-4 w-4 mr-1 text-green-400" />
+                            <span className="text-green-400 font-bold">+{winPayout}</span>
+                            <span className="text-gray-400 text-xs ml-1">(2x)</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-yellow-400 flex items-center">
+                            <span className="h-4 w-4 mr-2 flex items-center justify-center">↔</span>
+                            Push
+                          </span>
+                          <div className="flex items-center">
+                            <Coins className="h-4 w-4 mr-1 text-yellow-400" />
+                            <span className="text-yellow-400 font-bold">+{pushPayout}</span>
+                            <span className="text-gray-400 text-xs ml-1">(refund)</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-red-400 flex items-center">
+                            <TrendingDown className="h-4 w-4 mr-2" />
+                            Loss
+                          </span>
+                          <div className="flex items-center">
+                            <Coins className="h-4 w-4 mr-1 text-red-400" />
+                            <span className="text-red-400 font-bold">+0</span>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Settle as WIN? ${user?.username} will receive ${winPayout} coins.`)) {
+                            handleSettleWager(wager.id, 'win');
+                          }
+                        }}
+                        disabled={loading}
+                        className="flex-1 bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
+                      >
+                        <Check className="h-5 w-5 mr-2" />
+                        Win
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Settle as PUSH? ${user?.username} will receive ${pushPayout} coins (refund).`)) {
+                            handleSettleWager(wager.id, 'push');
+                          }
+                        }}
+                        disabled={loading}
+                        className="flex-1 bg-yellow-600 text-white px-4 py-3 rounded-md hover:bg-yellow-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
+                      >
+                        <span className="mr-2">↔</span>
+                        Push
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Settle as LOSS? ${user?.username} will receive 0 coins.`)) {
+                            handleSettleWager(wager.id, 'loss');
+                          }
+                        }}
+                        disabled={loading}
+                        className="flex-1 bg-red-600 text-white px-4 py-3 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
+                      >
+                        <X className="h-5 w-5 mr-2" />
+                        Loss
+                      </button>
                     </div>
                   </div>
                 );
               })}
               {wagers.filter(w => w.status === 'active').length === 0 && (
-                <p className="text-gray-400">No active wagers to settle</p>
+                <p className="text-gray-400 text-center py-8">No active wagers to settle</p>
               )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Game Spreads - Collapsible */}
-      <div className="bg-gray-800 shadow rounded-lg">
-        <div 
-          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-700"
-          onClick={() => toggleAdminSection('spreads')}
-        >
-          <h3 className="text-lg font-medium text-white">
-            Set Game Spreads
-          </h3>
-          {adminSections.spreads ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
-        </div>
-        
-        {adminSections.spreads && (
-          <div className="p-6">
-            <div className="space-y-4">
-              {games.map((game) => (
-                <div key={game.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
-                  <div className="flex justify-between items-center">
-                    <div className="flex-1">
-                      <p className="font-medium text-white">
-                        Game #{game.id}: {game.awayTeam} @ {game.homeTeam}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {formatDate(game.gameTime)}
-                      </p>
-                      <p className="text-sm text-gray-300 mt-1">
-                        Current spread: {game.homeTeam} {game.homeSpread} / {game.awayTeam} +{Math.abs(game.awaySpread)}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2 ml-4">
-                      <input
-                        id={`spread-${game.id}`}
-                        type="number"
-                        step="0.5"
-                        placeholder="Home spread"
-                        className="w-24 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
-                        defaultValue={game.homeSpread}
-                      />
-                      <button
-                        onClick={() => {
-                          const spreadInput = document.getElementById(`spread-${game.id}`);
-                          const newSpread = parseFloat(spreadInput.value);
-                          if (isNaN(newSpread)) {
-                            alert('Please enter a valid number');
-                            return;
-                          }
-                          handleUpdateSpread(game.id, newSpread);
-                        }}
-                        disabled={loading}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        Update
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Create User - Collapsible */}
-      <div className="bg-gray-800 shadow rounded-lg">
+      <div className="bg-gray-800 shadow rounded-lg border border-gray-700">
         <div 
-          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-700"
+          className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-750 transition-colors"
           onClick={() => toggleAdminSection('createUser')}
         >
-          <h3 className="text-lg font-medium text-white">
+          <h3 className="text-lg font-medium text-white flex items-center">
+            <Plus className="h-5 w-5 mr-2 text-blue-500" />
             Create New User
           </h3>
           {adminSections.createUser ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
@@ -234,7 +378,7 @@ const AdminPanel = ({
                   type="text"
                   value={adminForm.username}
                   onChange={(e) => setAdminForm({...adminForm, username: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter username"
                 />
               </div>
@@ -247,7 +391,7 @@ const AdminPanel = ({
                   type="password"
                   value={adminForm.password}
                   onChange={(e) => setAdminForm({...adminForm, password: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter password"
                 />
               </div>
@@ -255,7 +399,7 @@ const AdminPanel = ({
               <button
                 onClick={handleCreateUser}
                 disabled={loading || !adminForm.username || !adminForm.password}
-                className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 disabled:opacity-50 flex items-center"
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center transition-colors"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create User
