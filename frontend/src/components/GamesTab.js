@@ -75,15 +75,15 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-650 transition-colors">
-                      <span className="text-sm text-gray-300">{game.awayTeam}</span>
+                      <span className="text-sm text-gray-300">{game.away_team}</span>
                       <span className="font-medium text-yellow-400">
-                        {game.awaySpread === 0 ? 'TBD' : `+${Math.abs(game.awaySpread)}`}
+                        {!game.spread || game.spread === 0 ? 'TBD' : `+${Math.abs(game.spread)}`}
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-2 bg-gray-700 rounded hover:bg-gray-650 transition-colors">
-                      <span className="text-sm text-gray-300">{game.homeTeam}</span>
+                      <span className="text-sm text-gray-300">{game.home_team}</span>
                       <span className="font-medium text-yellow-400">
-                        {game.homeSpread === 0 ? 'TBD' : game.homeSpread}
+                        {!game.spread || game.spread === 0 ? 'TBD' : game.spread}
                       </span>
                     </div>
                   </div>
@@ -95,7 +95,7 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                         Game locked - betting unavailable
                       </div>
                     </div>
-                  ) : game.spreadsSet ? (
+                  ) : (game.spread !== null && game.spread !== undefined && game.spread !== 0) ? (
                     <div className="mt-4 space-y-3">
                       <select 
                         id={`team-select-${game.id}`}
