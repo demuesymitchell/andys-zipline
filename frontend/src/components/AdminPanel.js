@@ -70,7 +70,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
           <h3 className="text-lg font-medium text-white flex items-center">
             <Check className="h-5 w-5 mr-2 text-blue-500" />
             Pending Wagers 
-            {groupedPendingWagers.length > 0 && (
+            {groupedPendingWagers?.length > 0 && (
               <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                 {groupedPendingWagers.length}
               </span>
@@ -81,11 +81,11 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
         
         {adminSections.pending && (
           <div className="p-6">
-            {groupedPendingWagers.length === 0 ? (
+            {!groupedPendingWagers || groupedPendingWagers.length === 0 ? (
               <p className="text-gray-400 text-center py-4">No pending wagers</p>
             ) : (
               <div className="space-y-4">
-                {groupedPendingWagers.map((userGroup) => (
+                {(groupedPendingWagers || []).map((userGroup) => (
                   <div key={userGroup.userId} className="border border-gray-600 rounded-lg p-4 bg-gray-700 hover:bg-gray-650 transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
@@ -271,7 +271,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
         {adminSections.settlement && (
           <div className="p-6">
             <div className="space-y-4">
-              {wagers.filter(w => w.status === 'active').map((wager) => {
+             {(wagers || []).filter(w => w.status === 'active').map((wager) => {
                 const game = games.find(g => g.id === wager.gameId);
                 const user = leaderboard.find(u => u.id === wager.userId);
                 const winPayout = wager.amount * 2;
@@ -381,7 +381,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
                   </div>
                 );
               })}
-              {wagers.filter(w => w.status === 'active').length === 0 && (
+              {(!wagers || wagers.filter(w => w.status === 'active').length === 0) && (
                 <p className="text-gray-400 text-center py-8">No active wagers to settle</p>
               )}
             </div>
