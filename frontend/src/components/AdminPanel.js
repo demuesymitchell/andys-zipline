@@ -16,7 +16,8 @@ const AdminPanel = ({
   handleUpdateSpread,
   adminForm,
   setAdminForm,
-  handleCreateUser
+  handleCreateUser,
+  refreshGames
 }) => {
   // Local state for spread inputs
   const [spreadInputs, setSpreadInputs] = useState({});
@@ -25,7 +26,7 @@ const AdminPanel = ({
     setSpreadInputs(prev => ({ ...prev, [gameId]: value }));
   };
 
-  const handleToggleLock = async (gameId, currentLockStatus) => {
+const handleToggleLock = async (gameId, currentLockStatus) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://andys-zipline-production.up.railway.app'}/api/admin/games/${gameId}/lock`, {
         method: 'POST',
@@ -38,8 +39,10 @@ const AdminPanel = ({
 
       if (!response.ok) throw new Error('Failed to toggle lock');
       
-      // Refresh games to get updated lock status
-      window.location.reload();
+      // Refresh games data without page reload
+      if (refreshGames) {
+        await refreshGames();
+      }
     } catch (error) {
       alert('Failed to toggle game lock');
       console.error(error);
@@ -170,7 +173,12 @@ const AdminPanel = ({
                         </p>
                       </div>
                       <button
-                        onClick={() => handleToggleLock(game.id, isLocked)}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleLock(game.id, isLocked);
+                        }}
                         disabled={loading}
                         className={`ml-2 p-2 rounded-md transition-colors ${
                           isLocked 
