@@ -417,21 +417,22 @@ const handleUpdateSpread = async (gameId, homeSpread) => {
 
           {activeTab === 'admin' && user?.isAdmin && (
             <AdminPanel 
-              adminSections={adminSections}
-              toggleAdminSection={toggleAdminSection}
-              groupedPendingWagers={groupedPendingWagers}
-              handleUserWagerDecision={handleUserWagerDecision}
-              loading={loading}
-              wagers={wagers}
-              games={games}
-              leaderboard={leaderboard}
-              handleSettleWager={handleSettleWager}
-              formatDate={formatDate}
-              handleUpdateSpread={handleUpdateSpread}
-              adminForm={adminForm}
-              setAdminForm={setAdminForm}
-              handleCreateUser={handleCreateUser}
-            />
+  adminSections={adminSections}
+  toggleAdminSection={toggleAdminSection}
+  groupedPendingWagers={groupedPendingWagers}
+  handleUserWagerDecision={handleUserWagerDecision}
+  loading={loading}
+  wagers={wagers}
+  games={games}
+  leaderboard={leaderboard}
+  handleSettleWager={handleSettleWager}
+  formatDate={formatDate}
+  handleUpdateSpread={handleUpdateSpread}
+  adminForm={adminForm}
+  setAdminForm={setAdminForm}
+  handleCreateUser={handleCreateUser}
+  refreshGames={fetchGames}
+/>
           )}
         </div>
       </main>
