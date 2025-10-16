@@ -27,7 +27,7 @@ const WagersTab = ({
                       {wager.team} ({wager.spread > 0 ? '+' : ''}{wager.spread})
                     </div>
                     <div className="text-sm text-gray-400">
-                      {game ? `${game.awayTeam} @ ${game.homeTeam}` : 'Game not found'}
+                      {game ? `${game.away_team} @ ${game.home_team}` : 'Game not found'}
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
