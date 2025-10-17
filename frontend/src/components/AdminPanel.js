@@ -3,18 +3,18 @@ import React, { useState } from 'react';
 import { Check, X, ChevronDown, ChevronUp, Plus, Coins, TrendingDown, TrendingUp, Lock, Unlock } from 'lucide-react';
 
 const AdminPanel = ({
-  adminSections,
+  adminSections = {},
   toggleAdminSection,
-  groupedPendingWagers,
+  groupedPendingWagers = [],
   handleUserWagerDecision,
   loading,
-  wagers,
-  games,
-  leaderboard,
+  wagers = [],
+  games = [],
+  leaderboard = [],
   handleSettleWager,
   formatDate,
   handleUpdateSpread,
-  adminForm,
+  adminForm = {},
   setAdminForm,
   handleCreateUser,
   refreshGames
@@ -26,7 +26,7 @@ const AdminPanel = ({
     setSpreadInputs(prev => ({ ...prev, [gameId]: value }));
   };
 
-const handleToggleLock = async (gameId, currentLockStatus) => {
+  const handleToggleLock = async (gameId, currentLockStatus) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://andys-zipline-production.up.railway.app'}/api/admin/games/${gameId}/lock`, {
         method: 'POST',
@@ -70,7 +70,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
           <h3 className="text-lg font-medium text-white flex items-center">
             <Check className="h-5 w-5 mr-2 text-blue-500" />
             Pending Wagers 
-            {groupedPendingWagers?.length > 0 && (
+            {groupedPendingWagers.length > 0 && (
               <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                 {groupedPendingWagers.length}
               </span>
@@ -81,18 +81,18 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
         
         {adminSections.pending && (
           <div className="p-6">
-            {!groupedPendingWagers || groupedPendingWagers.length === 0 ? (
+            {groupedPendingWagers.length === 0 ? (
               <p className="text-gray-400 text-center py-4">No pending wagers</p>
             ) : (
               <div className="space-y-4">
-                {(groupedPendingWagers || []).map((userGroup) => (
+                {groupedPendingWagers.map((userGroup) => (
                   <div key={userGroup.userId} className="border border-gray-600 rounded-lg p-4 bg-gray-700 hover:bg-gray-650 transition-colors">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h4 className="font-medium text-lg text-white">{userGroup.username}</h4>
                         <p className="text-sm text-gray-400 flex items-center mt-1">
                           <Coins className="h-4 w-4 mr-1 text-yellow-400" />
-                          {userGroup.wagers.length} wagers • Total: <span className="text-yellow-400 ml-1">{userGroup.totalAmount} coins</span>
+                          {userGroup.wagers?.length || 0} wagers • Total: <span className="text-yellow-400 ml-1">{userGroup.totalAmount} coins</span>
                         </p>
                       </div>
                       <div className="flex space-x-2">
@@ -116,7 +116,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
                     </div>
                     
                     <div className="space-y-2">
-                      {userGroup.wagers.map((wager) => (
+                      {(userGroup.wagers || []).map((wager) => (
                         <div key={wager.id} className="bg-gray-600 p-3 rounded text-sm flex justify-between items-center">
                           <div>
                             <strong className="text-white">{wager.gameName}</strong>
@@ -139,7 +139,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
         )}
       </div>
 
-      {/* Game Spreads - Collapsible (MOVED UP) */}
+      {/* Game Spreads - Collapsible */}
       <div className="bg-gray-800 shadow rounded-lg border border-gray-700">
         <div 
           className="p-6 border-b border-gray-700 cursor-pointer flex justify-between items-center hover:bg-gray-750 transition-colors"
@@ -271,7 +271,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
         {adminSections.settlement && (
           <div className="p-6">
             <div className="space-y-4">
-             {(wagers || []).filter(w => w.status === 'active').map((wager) => {
+              {wagers.filter(w => w.status === 'active').map((wager) => {
                 const game = games.find(g => g.id === wager.gameId);
                 const user = leaderboard.find(u => u.id === wager.userId);
                 const winPayout = wager.amount * 2;
@@ -381,7 +381,7 @@ const handleToggleLock = async (gameId, currentLockStatus) => {
                   </div>
                 );
               })}
-              {(!wagers || wagers.filter(w => w.status === 'active').length === 0) && (
+              {wagers.filter(w => w.status === 'active').length === 0 && (
                 <p className="text-gray-400 text-center py-8">No active wagers to settle</p>
               )}
             </div>
