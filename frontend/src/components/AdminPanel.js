@@ -87,19 +87,26 @@ const AdminPanel = ({
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {groupedPendingWagers.map((userGroup) => {
                   const userId = userGroup.userId || userGroup.user_id;
+                  const userBalance = userGroup.coins || userGroup.balance || 0;
                   return (
                     <div key={userId} className="border border-gray-600 rounded-lg p-4 bg-gray-700 transition-all hover:border-blue-500">
                       {/* User Header */}
                       <div className="mb-4 pb-3 border-b border-gray-600">
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-semibold text-lg text-white">{userGroup.username}</h4>
-                          <div className="flex items-center bg-gray-600 px-3 py-1 rounded">
-                            <Coins className="h-4 w-4 mr-1 text-yellow-400" />
-                            <span className="text-yellow-400 font-bold">{userGroup.totalAmount}</span>
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center bg-gray-800 px-3 py-1 rounded">
+                              <Coins className="h-4 w-4 mr-1 text-gray-400" />
+                              <span className="text-gray-300 text-sm font-medium">{userBalance}</span>
+                            </div>
+                            <div className="flex items-center bg-yellow-900 bg-opacity-30 border border-yellow-600 px-3 py-1 rounded">
+                              <Coins className="h-4 w-4 mr-1 text-yellow-400" />
+                              <span className="text-yellow-400 font-bold">{userGroup.totalAmount}</span>
+                            </div>
                           </div>
                         </div>
                         <p className="text-xs text-gray-400">
-                          {userGroup.wagers?.length || 0} wager{(userGroup.wagers?.length || 0) !== 1 ? 's' : ''} pending approval
+                          {userGroup.wagers?.length || 0} wager{(userGroup.wagers?.length || 0) !== 1 ? 's' : ''} pending • Balance after: <span className="text-blue-400 font-medium">{userBalance - userGroup.totalAmount}</span>
                         </p>
                       </div>
 
@@ -117,7 +124,7 @@ const AdminPanel = ({
                                   </span>
                                 </div>
                               </div>
-                              <div className="flex items-center">
+                              <div className="flex items-center bg-yellow-900 bg-opacity-20 px-2 py-1 rounded">
                                 <Coins className="h-4 w-4 mr-1 text-yellow-400" />
                                 <span className="text-yellow-400 font-bold text-sm">{wager.amount}</span>
                               </div>
@@ -131,7 +138,7 @@ const AdminPanel = ({
                         <button
                           onClick={() => handleUserWagerDecision(userId, 'approved')}
                           disabled={loading}
-                          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
+                          className="flex-1 bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-600 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
                         >
                           <Check className="h-4 w-4 mr-2" />
                           Approve All
@@ -139,7 +146,7 @@ const AdminPanel = ({
                         <button
                           onClick={() => handleUserWagerDecision(userId, 'rejected')}
                           disabled={loading}
-                          className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
+                          className="flex-1 bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
                         >
                           <X className="h-4 w-4 mr-2" />
                           Reject All
