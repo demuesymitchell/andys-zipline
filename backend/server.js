@@ -305,6 +305,76 @@ app.get('/api/admin/wagers/pending', authenticateToken, authenticateAdmin, async
   }
 });
 
+// Approve or reject all wagers for a user (admin)
+app.put('/api/admin/wagers/user/:userId/decision', authenticateToken, authenticateAdmin, async (req, res) => {
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    
+    const { decision } = req.body; // 'approved' or 'rejected'
+    const userId = req.params.userId;
+    
+    // Get all pending wagers for this user
+    const wagersResult = await client.query(
+      'SELECT * FROM wagers WHERE user_id = $1 AND status = $2',
+      [userId, 'pending']
+    );
+    
+    if (wagersResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'No pending wagers found for this user' });
+    }
+
+    if (decision === 'approved') {
+      // Get user's current balance
+      const userResult = await client.query(
+        'SELECT coins FROM users WHERE id = $1',
+        [userId]
+      );
+      
+      const userCoins = userResult.rows[0].coins;
+      const totalAmount = wagersResult.rows.reduce((sum, w) => sum + w.amount, 0);
+      
+      if (userCoins < totalAmount) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: 'User has insufficient funds' });
+      }
+
+      // Deduct coins
+      await client.query(
+        'UPDATE users SET coins = coins - $1 WHERE id = $2',
+        [totalAmount, userId]
+      );
+
+      // Update all wagers to active
+      await client.query(
+        'UPDATE wagers SET status = $1, approved_at = CURRENT_TIMESTAMP WHERE user_id = $2 AND status = $3',
+        ['active', userId, 'pending']
+      );
+    } else if (decision === 'rejected') {
+      // Update all wagers to rejected
+      await client.query(
+        'UPDATE wagers SET status = $1 WHERE user_id = $2 AND status = $3',
+        ['rejected', userId, 'pending']
+      );
+    } else {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ message: 'Invalid decision' });
+    }
+
+    await client.query('COMMIT');
+    res.json({ message: `All wagers ${decision} successfully` });
+    
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Bulk wager decision error:', error);
+    res.status(500).json({ message: 'Server error' });
+  } finally {
+    client.release();
+  }
+});
+
 // Approve wager (admin)
 app.post('/api/admin/wagers/:id/approve', authenticateToken, authenticateAdmin, async (req, res) => {
   const client = await pool.connect();
