@@ -84,55 +84,70 @@ const AdminPanel = ({
             {groupedPendingWagers.length === 0 ? (
               <p className="text-gray-400 text-center py-4">No pending wagers</p>
             ) : (
-              <div className="space-y-4">
-                {groupedPendingWagers.map((userGroup) => (
-                  <div key={userGroup.userId} className="border border-gray-600 rounded-lg p-4 bg-gray-700 hover:bg-gray-650 transition-colors">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-medium text-lg text-white">{userGroup.username}</h4>
-                        <p className="text-sm text-gray-400 flex items-center mt-1">
-                          <Coins className="h-4 w-4 mr-1 text-yellow-400" />
-                          {userGroup.wagers?.length || 0} wagers • Total: <span className="text-yellow-400 ml-1">{userGroup.totalAmount} coins</span>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {groupedPendingWagers.map((userGroup) => {
+                  const userId = userGroup.userId || userGroup.user_id;
+                  return (
+                    <div key={userId} className="border border-gray-600 rounded-lg p-4 bg-gray-700 transition-all hover:border-blue-500">
+                      {/* User Header */}
+                      <div className="mb-4 pb-3 border-b border-gray-600">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-lg text-white">{userGroup.username}</h4>
+                          <div className="flex items-center bg-gray-600 px-3 py-1 rounded">
+                            <Coins className="h-4 w-4 mr-1 text-yellow-400" />
+                            <span className="text-yellow-400 font-bold">{userGroup.totalAmount}</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-400">
+                          {userGroup.wagers?.length || 0} wager{(userGroup.wagers?.length || 0) !== 1 ? 's' : ''} pending approval
                         </p>
                       </div>
+
+                      {/* Wagers List */}
+                      <div className="space-y-2 mb-4">
+                        {(userGroup.wagers || []).map((wager) => (
+                          <div key={wager.id} className="bg-gray-600 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-white mb-1">{wager.gameName}</p>
+                                <div className="flex items-center space-x-2 text-xs">
+                                  <span className="text-gray-300">{wager.team}</span>
+                                  <span className="text-blue-400 font-medium">
+                                    ({wager.spread > 0 ? '+' : ''}{wager.spread})
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <Coins className="h-4 w-4 mr-1 text-yellow-400" />
+                                <span className="text-yellow-400 font-bold text-sm">{wager.amount}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Action Buttons */}
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleUserWagerDecision(userGroup.userId, 'approved')}
+                          onClick={() => handleUserWagerDecision(userId, 'approved')}
                           disabled={loading}
-                          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center transition-colors"
+                          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
                         >
-                          <Check className="h-4 w-4 mr-1" />
+                          <Check className="h-4 w-4 mr-2" />
                           Approve All
                         </button>
                         <button
-                          onClick={() => handleUserWagerDecision(userGroup.userId, 'rejected')}
+                          onClick={() => handleUserWagerDecision(userId, 'rejected')}
                           disabled={loading}
-                          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center transition-colors"
+                          className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center justify-center font-medium transition-colors"
                         >
-                          <X className="h-4 w-4 mr-1" />
+                          <X className="h-4 w-4 mr-2" />
                           Reject All
                         </button>
                       </div>
                     </div>
-                    
-                    <div className="space-y-2">
-                      {(userGroup.wagers || []).map((wager) => (
-                        <div key={wager.id} className="bg-gray-600 p-3 rounded text-sm flex justify-between items-center">
-                          <div>
-                            <strong className="text-white">{wager.gameName}</strong>
-                            <span className="text-gray-300 mx-2">→</span>
-                            <span className="text-gray-300">{wager.team}</span>
-                            <span className="text-blue-400 ml-2">({wager.spread > 0 ? '+' : ''}{wager.spread})</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Coins className="h-4 w-4 mr-1 text-yellow-400" />
-                            <span className="text-yellow-400 font-medium">{wager.amount}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
