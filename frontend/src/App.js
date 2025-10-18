@@ -22,6 +22,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [games, setGames] = useState([]);
   const [wagers, setWagers] = useState([]);
+  const [adminActiveWagers, setAdminActiveWagers] = useState([]);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -48,23 +49,24 @@ const App = () => {
 
   // Fetch data on mount
   useEffect(() => {
-  if (token) {
-    fetchUserData();
-    fetchGames();
-    fetchCart();
-    fetchLeaderboard();
-  }
-}, [token]);
+    if (token) {
+      fetchUserData();
+      fetchGames();
+      fetchCart();
+      fetchLeaderboard();
+    }
+  }, [token]);
 
-useEffect(() => {
-  if (user) {
-    fetchWagers();
-  }
-}, [user]);
+  useEffect(() => {
+    if (user) {
+      fetchWagers();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user?.isAdmin) {
       fetchGroupedPendingWagers();
+      fetchAdminActiveWagers();
     }
   }, [user?.isAdmin]);
 
@@ -89,42 +91,53 @@ useEffect(() => {
     }
   };
 
-const fetchWagers = async () => {
-  try {
-    // If admin, fetch all active wagers, otherwise fetch user's own wagers
-    const endpoint = user?.isAdmin ? '/admin/wagers/active' : '/wagers';
-    const wagersData = await apiCall(endpoint, token);
-    setWagers(wagersData || []);
-  } catch (error) {
-    console.error('Failed to fetch wagers:', error);
-    setWagers([]);
-  }
-};
+  const fetchWagers = async () => {
+    try {
+      const wagersData = await apiCall('/wagers', token);
+      setWagers(wagersData || []);
+    } catch (error) {
+      console.error('Failed to fetch wagers:', error);
+      setWagers([]);
+    }
+  };
+
+  const fetchAdminActiveWagers = async () => {
+    try {
+      const wagersData = await apiCall('/admin/wagers/active', token);
+      setAdminActiveWagers(wagersData || []);
+    } catch (error) {
+      console.error('Failed to fetch admin active wagers:', error);
+      setAdminActiveWagers([]);
+    }
+  };
 
   const fetchCart = async () => {
     try {
       const cartData = await apiCall('/cart', token);
-      setCart(cartData);
+      setCart(cartData || []);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
+      setCart([]);
     }
   };
 
   const fetchLeaderboard = async () => {
     try {
       const leaderboardData = await apiCall('/leaderboard', token);
-      setLeaderboard(leaderboardData);
+      setLeaderboard(leaderboardData || []);
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);
+      setLeaderboard([]);
     }
   };
 
   const fetchGroupedPendingWagers = async () => {
     try {
       const pendingData = await apiCall('/admin/wagers/pending', token);
-      setGroupedPendingWagers(pendingData);
+      setGroupedPendingWagers(pendingData || []);
     } catch (error) {
       console.error('Failed to fetch grouped pending wagers:', error);
+      setGroupedPendingWagers([]);
     }
   };
 
@@ -151,6 +164,7 @@ const fetchWagers = async () => {
     setUser(null);
     setGames([]);
     setWagers([]);
+    setAdminActiveWagers([]);
     setCart([]);
     setLeaderboard([]);
     setGroupedPendingWagers([]);
@@ -189,6 +203,9 @@ const fetchWagers = async () => {
       fetchCart();
       fetchWagers();
       fetchUserData();
+      if (user?.isAdmin) {
+        fetchGroupedPendingWagers();
+      }
       setCartOpen(false);
       alert('Cart submitted for admin approval!');
     } catch (error) {
@@ -207,6 +224,9 @@ const fetchWagers = async () => {
       });
       fetchWagers();
       fetchUserData();
+      if (user?.isAdmin) {
+        fetchGroupedPendingWagers();
+      }
       setEditWagerModal({ open: false, wager: null, amount: '' });
       alert('Wager updated successfully!');
     } catch (error) {
@@ -226,6 +246,9 @@ const fetchWagers = async () => {
       });
       fetchWagers();
       fetchUserData();
+      if (user?.isAdmin) {
+        fetchGroupedPendingWagers();
+      }
       alert('Wager cancelled successfully!');
     } catch (error) {
       alert('Failed to cancel wager.');
@@ -242,6 +265,7 @@ const fetchWagers = async () => {
         body: JSON.stringify({ decision })
       });
       fetchGroupedPendingWagers();
+      fetchAdminActiveWagers();
       fetchLeaderboard();
       alert(`User's wagers ${decision} successfully!`);
     } catch (error) {
@@ -250,20 +274,20 @@ const fetchWagers = async () => {
     setLoading(false);
   };
 
-const handleUpdateSpread = async (gameId, homeSpread) => {
-  setLoading(true);
-  try {
-    await apiCall(`/admin/games/${gameId}/spread`, token, {
-      method: 'POST',
-      body: JSON.stringify({ spread: homeSpread })
-    });
-    fetchGames();
-    alert('Spread updated successfully!');
-  } catch (error) {
-    alert('Failed to update spread.');
-  }
-  setLoading(false);
-};
+  const handleUpdateSpread = async (gameId, homeSpread) => {
+    setLoading(true);
+    try {
+      await apiCall(`/admin/games/${gameId}/spread`, token, {
+        method: 'POST',
+        body: JSON.stringify({ spread: homeSpread })
+      });
+      fetchGames();
+      alert('Spread updated successfully!');
+    } catch (error) {
+      alert('Failed to update spread.');
+    }
+    setLoading(false);
+  };
 
   const handleCreateUser = async () => {
     setLoading(true);
@@ -282,20 +306,20 @@ const handleUpdateSpread = async (gameId, homeSpread) => {
   };
 
   const handleSettleWager = async (wagerId, result) => {
-  setLoading(true);
-  try {
-    await apiCall(`/admin/wagers/${wagerId}/settle`, token, {
-      method: 'POST',
-      body: JSON.stringify({ result })
-    });
-    fetchWagers();
-    fetchLeaderboard();
-    alert(`Wager settled as ${result}!`);
-  } catch (error) {
-    alert('Failed to settle wager.');
-  }
-  setLoading(false);
-};
+    setLoading(true);
+    try {
+      await apiCall(`/admin/wagers/${wagerId}/settle`, token, {
+        method: 'POST',
+        body: JSON.stringify({ result })
+      });
+      fetchAdminActiveWagers();
+      fetchLeaderboard();
+      alert(`Wager settled as ${result}!`);
+    } catch (error) {
+      alert('Failed to settle wager.');
+    }
+    setLoading(false);
+  };
 
   const toggleAdminSection = (section) => {
     setAdminSections(prev => ({
@@ -425,22 +449,22 @@ const handleUpdateSpread = async (gameId, homeSpread) => {
 
           {activeTab === 'admin' && user?.isAdmin && (
             <AdminPanel 
-  adminSections={adminSections}
-  toggleAdminSection={toggleAdminSection}
-  groupedPendingWagers={groupedPendingWagers}
-  handleUserWagerDecision={handleUserWagerDecision}
-  loading={loading}
-  wagers={wagers}
-  games={games}
-  leaderboard={leaderboard}
-  handleSettleWager={handleSettleWager}
-  formatDate={formatDate}
-  handleUpdateSpread={handleUpdateSpread}
-  adminForm={adminForm}
-  setAdminForm={setAdminForm}
-  handleCreateUser={handleCreateUser}
-  refreshGames={fetchGames}
-/>
+              adminSections={adminSections}
+              toggleAdminSection={toggleAdminSection}
+              groupedPendingWagers={groupedPendingWagers}
+              handleUserWagerDecision={handleUserWagerDecision}
+              loading={loading}
+              wagers={adminActiveWagers}
+              games={games}
+              leaderboard={leaderboard}
+              handleSettleWager={handleSettleWager}
+              formatDate={formatDate}
+              handleUpdateSpread={handleUpdateSpread}
+              adminForm={adminForm}
+              setAdminForm={setAdminForm}
+              handleCreateUser={handleCreateUser}
+              refreshGames={fetchGames}
+            />
           )}
         </div>
       </main>
