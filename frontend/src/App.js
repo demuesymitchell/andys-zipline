@@ -11,12 +11,16 @@ import GamesTab from './components/GamesTab';
 import WagersTab from './components/WagersTab';
 import LeaderboardTab from './components/LeaderboardTab';
 import AdminPanel from './components/AdminPanel';
+import { ToastContainer, useToast } from './components/Toast';
 
 // Import utilities and data
 import { apiCall, getStoredToken, setStoredToken, removeStoredToken } from './utils/api';
 import { week7SundayGames } from './data/week7Games';
 
 const App = () => {
+  // Toast notifications
+  const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
+  
   // State management
   const [token, setToken] = useState(() => getStoredToken());
   const [user, setUser] = useState(null);
@@ -154,7 +158,7 @@ const App = () => {
       setStoredToken(response.token);
       setLoginForm({ username: '', password: '' });
     } catch (error) {
-      alert('Login failed. Please check your credentials.');
+      showError('Login failed. Please check your credentials.');
     }
     setLoading(false);
   };
@@ -180,9 +184,9 @@ const App = () => {
         body: JSON.stringify({ gameId, team, amount, spread })
       });
       fetchCart();
-      alert('Added to cart successfully!');
+      showSuccess('Added to cart successfully!');
     } catch (error) {
-      alert(error.message || 'Failed to add to cart.');
+      showError(error.message || 'Failed to add to cart.');
     }
     setLoading(false);
   };
@@ -192,7 +196,7 @@ const App = () => {
       await apiCall(`/cart/${itemId}`, token, { method: 'DELETE' });
       fetchCart();
     } catch (error) {
-      alert('Failed to remove from cart.');
+      showError('Failed to remove from cart.');
     }
   };
 
@@ -207,9 +211,9 @@ const App = () => {
         fetchGroupedPendingWagers();
       }
       setCartOpen(false);
-      alert('Cart submitted for admin approval!');
+      showSuccess('Cart submitted for admin approval!');
     } catch (error) {
-      alert(error.message || 'Failed to submit cart.');
+      showError(error.message || 'Failed to submit cart.');
     }
     setLoading(false);
   };
@@ -228,9 +232,9 @@ const App = () => {
         fetchGroupedPendingWagers();
       }
       setEditWagerModal({ open: false, wager: null, amount: '' });
-      alert('Wager updated successfully!');
+      showSuccess('Wager updated successfully!');
     } catch (error) {
-      alert('Failed to update wager.');
+      showError('Failed to update wager.');
     }
     setLoading(false);
   };
@@ -249,9 +253,9 @@ const App = () => {
       if (user?.isAdmin) {
         fetchGroupedPendingWagers();
       }
-      alert('Wager cancelled successfully!');
+      showSuccess('Wager cancelled successfully!');
     } catch (error) {
-      alert('Failed to cancel wager.');
+      showError('Failed to cancel wager.');
     }
     setLoading(false);
   };
@@ -267,9 +271,9 @@ const App = () => {
       fetchGroupedPendingWagers();
       fetchAdminActiveWagers();
       fetchLeaderboard();
-      alert(`User's wagers ${decision} successfully!`);
+      showSuccess(`User's wagers ${decision} successfully!`);
     } catch (error) {
-      alert('Failed to process wager decision.');
+      showError('Failed to process wager decision.');
     }
     setLoading(false);
   };
@@ -282,9 +286,9 @@ const App = () => {
         body: JSON.stringify({ spread: homeSpread })
       });
       fetchGames();
-      alert('Spread updated successfully!');
+      showSuccess('Spread updated successfully!');
     } catch (error) {
-      alert('Failed to update spread.');
+      showError('Failed to update spread.');
     }
     setLoading(false);
   };
@@ -298,9 +302,9 @@ const App = () => {
       });
       setAdminForm({ username: '', password: '' });
       fetchLeaderboard();
-      alert('User created successfully!');
+      showSuccess('User created successfully!');
     } catch (error) {
-      alert('Failed to create user. Username may already exist.');
+      showError('Failed to create user. Username may already exist.');
     }
     setLoading(false);
   };
@@ -314,9 +318,9 @@ const App = () => {
       });
       fetchAdminActiveWagers();
       fetchLeaderboard();
-      alert(`Wager settled as ${result}!`);
+      showSuccess(`Wager settled as ${result}!`);
     } catch (error) {
-      alert('Failed to settle wager.');
+      showError('Failed to settle wager.');
     }
     setLoading(false);
   };
@@ -381,6 +385,8 @@ const App = () => {
   // Render main app
   return (
     <div className="min-h-screen bg-gray-900">
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      
       <Header 
         user={user}
         cart={cart}
