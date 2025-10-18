@@ -635,6 +635,25 @@ app.post('/api/admin/seed-games', authenticateToken, authenticateAdmin, async (r
   }
 });
 
+// Get ALL wagers (admin debug)
+app.get('/api/admin/wagers/all', authenticateToken, authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT w.*, u.username, g.home_team, g.away_team
+      FROM wagers w
+      JOIN users u ON w.user_id = u.id
+      JOIN games g ON w.game_id = g.id
+      ORDER BY w.created_at DESC
+      LIMIT 50
+    `);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get all wagers error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
