@@ -92,7 +92,7 @@ const WelcomeModal = ({ isOpen, onClose }) => {
             </div>
             <p className="text-yellow-100 text-center text-sm leading-relaxed">
               A huge thank you to our incredible beta testing crew who helped shape this platform. 
-              Your feedback, dedication, and willingness to break things (so we could fix them) has been invaluable. 
+              Your feedback, dedication, and willingness to break things (so I can fix them) has been invaluable. 
               This one's for you! 🏆
             </p>
           </div>
