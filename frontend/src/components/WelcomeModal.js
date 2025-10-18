@@ -4,12 +4,17 @@ import { X, Sparkles, Trophy } from 'lucide-react';
 const WelcomeModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    console.log('Welcome modal closing'); // Debug log
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
       <div className="bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full border border-gray-700 relative animate-fadeIn">
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
         >
           <X className="h-6 w-6" />
@@ -64,7 +69,7 @@ const WelcomeModal = ({ isOpen, onClose }) => {
 
           {/* Close button */}
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105"
           >
             Let's Get Started! 🚀
