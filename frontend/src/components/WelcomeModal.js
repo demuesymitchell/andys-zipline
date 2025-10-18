@@ -44,7 +44,7 @@ const WelcomeModal = ({ isOpen, onClose }) => {
           <div className="bg-gradient-to-r from-green-900 to-emerald-900 rounded-lg p-5 border border-green-600">
             <div className="flex items-center justify-center space-x-2 mb-2">
               <Clock className="h-6 w-6 text-green-400" />
-              <h3 className="text-lg font-bold text-green-400">Wagers Open Soon!</h3>
+              <h3 className="text-lg font-bold text-green-400">Wagers Open!</h3>
             </div>
             <p className="text-green-100 text-center font-semibold text-lg">
               Saturday, October 18, 2025 @ 1:00 PM EST
@@ -52,8 +52,19 @@ const WelcomeModal = ({ isOpen, onClose }) => {
             <p className="text-green-200 text-center text-sm mt-2">
               Get ready to lock in your picks for Week 7! 🔥
             </p>
-            <p className="text-green-300 text-center text-xs mt-3 font-semibold">
-              Wagers close @ 1:00 PM EST Sunday, October 19th
+          </div>
+
+          {/* Wager Closing Notice */}
+          <div className="bg-gradient-to-r from-red-900 to-rose-900 rounded-lg p-5 border border-red-600">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Clock className="h-6 w-6 text-red-400" />
+              <h3 className="text-lg font-bold text-red-400">Wagers Close!</h3>
+            </div>
+            <p className="text-red-100 text-center font-semibold text-lg">
+              Sunday, October 19, 2025 @ 1:00 PM EST
+            </p>
+            <p className="text-red-200 text-center text-sm mt-2">
+              Last call to get your picks in! ⏰
             </p>
           </div>
 
