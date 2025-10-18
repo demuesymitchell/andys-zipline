@@ -11,6 +11,7 @@ import GamesTab from './components/GamesTab';
 import WagersTab from './components/WagersTab';
 import LeaderboardTab from './components/LeaderboardTab';
 import AdminPanel from './components/AdminPanel';
+import WelcomeModal from './components/WelcomeModal';
 import { ToastContainer, useToast } from './components/Toast';
 
 // Import utilities and data
@@ -33,6 +34,7 @@ const App = () => {
   const [groupedPendingWagers, setGroupedPendingWagers] = useState([]);
   const [activeTab, setActiveTab] = useState('games');
   const [loading, setLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   // Admin state
   const [adminSections, setAdminSections] = useState({
@@ -157,6 +159,7 @@ const App = () => {
       setUser(response.user);
       setStoredToken(response.token);
       setLoginForm({ username: '', password: '' });
+      setShowWelcome(true); // Show welcome modal after successful login
     } catch (error) {
       showError('Login failed. Please check your credentials.');
     }
@@ -386,6 +389,10 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-900">
       <ToastContainer toasts={toasts} removeToast={removeToast} />
+      <WelcomeModal 
+        isOpen={showWelcome} 
+        onClose={() => setShowWelcome(false)} 
+      />
       
       <Header 
         user={user}
