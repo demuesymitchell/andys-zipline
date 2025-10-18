@@ -8,7 +8,7 @@ export const week7SundayGames = [
     awayTeam: 'New Orleans Saints',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T17:00:00.000Z',
+    gameTime: '2025-10-19T17:00:00.000Z', // 1:00 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
@@ -18,7 +18,7 @@ export const week7SundayGames = [
     awayTeam: 'Miami Dolphins',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T17:00:00.000Z',
+    gameTime: '2025-10-19T17:00:00.000Z', // 1:00 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
@@ -28,7 +28,7 @@ export const week7SundayGames = [
     awayTeam: 'New England Patriots',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T17:00:00.000Z',
+    gameTime: '2025-10-19T17:00:00.000Z', // 1:00 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
@@ -38,7 +38,7 @@ export const week7SundayGames = [
     awayTeam: 'Las Vegas Raiders',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T17:00:00.000Z',
+    gameTime: '2025-10-19T17:00:00.000Z', // 1:00 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
@@ -48,7 +48,7 @@ export const week7SundayGames = [
     awayTeam: 'Philadelphia Eagles',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T17:00:00.000Z',
+    gameTime: '2025-10-19T17:00:00.000Z', // 1:00 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
@@ -58,7 +58,7 @@ export const week7SundayGames = [
     awayTeam: 'Carolina Panthers',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T17:00:00.000Z',
+    gameTime: '2025-10-19T17:00:00.000Z', // 1:00 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
@@ -68,7 +68,7 @@ export const week7SundayGames = [
     awayTeam: 'New York Giants',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T20:05:00.000Z',
+    gameTime: '2025-10-19T20:05:00.000Z', // 4:05 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
@@ -78,37 +78,47 @@ export const week7SundayGames = [
     awayTeam: 'Indianapolis Colts',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T20:05:00.000Z',
+    gameTime: '2025-10-19T20:05:00.000Z', // 4:05 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
   {
     id: 9,
-    homeTeam: 'Dallas Cowboys',
-    awayTeam: 'Washington Commanders',
+    homeTeam: 'San Francisco 49ers',
+    awayTeam: 'Atlanta Falcons',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T20:25:00.000Z',
+    gameTime: '2025-10-19T20:25:00.000Z', // 4:25 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
   {
     id: 10,
-    homeTeam: 'Arizona Cardinals',
-    awayTeam: 'Green Bay Packers',
+    homeTeam: 'Dallas Cowboys',
+    awayTeam: 'Washington Commanders',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-19T20:25:00.000Z',
+    gameTime: '2025-10-19T20:25:00.000Z', // 4:25 PM EST
     status: 'upcoming',
     spreadsSet: false
   },
   {
     id: 11,
-    homeTeam: 'San Francisco 49ers',
-    awayTeam: 'Atlanta Falcons',
+    homeTeam: 'Arizona Cardinals',
+    awayTeam: 'Green Bay Packers',
     homeSpread: 0,
     awaySpread: 0,
-    gameTime: '2025-10-20T00:20:00.000Z',
+    gameTime: '2025-10-19T20:25:00.000Z', // 4:25 PM EST
+    status: 'upcoming',
+    spreadsSet: false
+  },
+  {
+    id: 12,
+    homeTeam: 'Detroit Lions',
+    awayTeam: 'Tampa Bay Buccaneers',
+    homeSpread: 0,
+    awaySpread: 0,
+    gameTime: '2025-10-20T00:00:00.000Z', // 8:00 PM EST Sunday Night Football
     status: 'upcoming',
     spreadsSet: false
   }

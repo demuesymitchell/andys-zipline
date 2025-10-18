@@ -23,7 +23,7 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
     '1:00 PM ET': [],
     '4:05 PM ET': [],
     '4:25 PM ET': [], 
-    '8:20 PM ET': []
+    '8:00 PM ET': []
   };
 
   games.forEach(game => {
@@ -35,12 +35,23 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
       timeSlots['4:05 PM ET'].push(game);
     } else if (timeStr.includes('4:25')) {
       timeSlots['4:25 PM ET'].push(game);
-    } else if (timeStr.includes('8:20')) {
-      timeSlots['8:20 PM ET'].push(game);
+    } else if (timeStr.includes('8:00') || timeStr.includes('8:20')) {
+      timeSlots['8:00 PM ET'].push(game);
     } else {
       timeSlots['1:00 PM ET'].push(game);
     }
   });
+
+  const getSpreadColor = (spread) => {
+    if (spread > 0) return 'text-green-400';
+    if (spread < 0) return 'text-red-400';
+    return 'text-blue-400';
+  };
+
+  const formatSpread = (spread) => {
+    if (spread === 0) return 'TBD';
+    return spread > 0 ? `+${spread}` : spread;
+  };
 
   return (
     <>
@@ -89,14 +100,14 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
                     <div className="space-y-3">
                       <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
                         <span className="text-sm text-gray-300">{game.away_team}</span>
-                        <span className="font-medium text-blue-400">
-                          {homeSpread === 0 ? 'TBD' : awaySpread > 0 ? `+${awaySpread}` : awaySpread}
+                        <span className={`font-medium ${getSpreadColor(awaySpread)}`}>
+                          {formatSpread(awaySpread)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center p-2 bg-gray-700 rounded">
                         <span className="text-sm text-gray-300">{game.home_team}</span>
-                        <span className="font-medium text-blue-400">
-                          {homeSpread === 0 ? 'TBD' : homeSpread > 0 ? `+${homeSpread}` : homeSpread}
+                        <span className={`font-medium ${getSpreadColor(homeSpread)}`}>
+                          {formatSpread(homeSpread)}
                         </span>
                       </div>
                     </div>
