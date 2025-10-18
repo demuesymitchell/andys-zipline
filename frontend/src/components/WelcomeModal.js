@@ -47,10 +47,13 @@ const WelcomeModal = ({ isOpen, onClose }) => {
               <h3 className="text-lg font-bold text-green-400">Wagers Open Soon!</h3>
             </div>
             <p className="text-green-100 text-center font-semibold text-lg">
-              Saturday, October 18, 2025 @ 1:00 PM
+              Saturday, October 18, 2025 @ 1:00 PM EST
             </p>
             <p className="text-green-200 text-center text-sm mt-2">
               Get ready to lock in your picks for Week 7! 🔥
+            </p>
+            <p className="text-green-300 text-center text-xs mt-3 font-semibold">
+              Wagers close @ 1:00 PM EST Sunday, October 19th
             </p>
           </div>
 
