@@ -38,7 +38,9 @@ const Cart = ({
                 <div key={item.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="font-medium text-white">{item.gameName}</h3>
+                      <h3 className="font-medium text-white">
+                        {item.away_team} @ {item.home_team}
+                      </h3>
                       <p className="text-sm text-gray-400">
                         {item.team} ({item.spread > 0 ? '+' : ''}{item.spread})
                       </p>
@@ -46,7 +48,7 @@ const Cart = ({
                     <div className="flex items-center space-x-2">
                       <div className="font-medium text-yellow-400">{item.amount} coins</div>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.game_id)}
                         className="text-red-400 hover:text-red-300"
                       >
                         <X className="h-4 w-4" />
