@@ -48,14 +48,19 @@ const App = () => {
 
   // Fetch data on mount
   useEffect(() => {
-    if (token) {
-      fetchUserData();
-      fetchGames();
-      fetchWagers();
-      fetchCart();
-      fetchLeaderboard();
-    }
-  }, [token]);
+  if (token) {
+    fetchUserData();
+    fetchGames();
+    fetchCart();
+    fetchLeaderboard();
+  }
+}, [token]);
+
+useEffect(() => {
+  if (user) {
+    fetchWagers();
+  }
+}, [user]);
 
   useEffect(() => {
     if (user?.isAdmin) {
@@ -84,14 +89,17 @@ const App = () => {
     }
   };
 
-  const fetchWagers = async () => {
-    try {
-      const wagersData = await apiCall('/wagers', token);
-      setWagers(wagersData);
-    } catch (error) {
-      console.error('Failed to fetch wagers:', error);
-    }
-  };
+const fetchWagers = async () => {
+  try {
+    // If admin, fetch all active wagers, otherwise fetch user's own wagers
+    const endpoint = user?.isAdmin ? '/admin/wagers/active' : '/wagers';
+    const wagersData = await apiCall(endpoint, token);
+    setWagers(wagersData || []);
+  } catch (error) {
+    console.error('Failed to fetch wagers:', error);
+    setWagers([]);
+  }
+};
 
   const fetchCart = async () => {
     try {
