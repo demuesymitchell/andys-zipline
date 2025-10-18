@@ -282,20 +282,20 @@ const handleUpdateSpread = async (gameId, homeSpread) => {
   };
 
   const handleSettleWager = async (wagerId, result) => {
-    setLoading(true);
-    try {
-      await apiCall(`/admin/wagers/${wagerId}/settle`, token, {
-        method: 'PUT',
-        body: JSON.stringify({ result })
-      });
-      fetchWagers();
-      fetchLeaderboard();
-      alert(`Wager settled as ${result}!`);
-    } catch (error) {
-      alert('Failed to settle wager.');
-    }
-    setLoading(false);
-  };
+  setLoading(true);
+  try {
+    await apiCall(`/admin/wagers/${wagerId}/settle`, token, {
+      method: 'POST',
+      body: JSON.stringify({ result })
+    });
+    fetchWagers();
+    fetchLeaderboard();
+    alert(`Wager settled as ${result}!`);
+  } catch (error) {
+    alert('Failed to settle wager.');
+  }
+  setLoading(false);
+};
 
   const toggleAdminSection = (section) => {
     setAdminSections(prev => ({
