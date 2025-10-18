@@ -1,13 +1,10 @@
 import React from 'react';
-import { X, Sparkles, Trophy } from 'lucide-react';
+import { X, Sparkles, Trophy, Clock, Users } from 'lucide-react';
 
 const WelcomeModal = ({ isOpen, onClose }) => {
-  console.log('WelcomeModal render - isOpen:', isOpen); // Debug log
-  
   if (!isOpen) return null;
 
   const handleClose = () => {
-    console.log('Welcome modal closing'); // Debug log
     onClose();
   };
 
@@ -35,11 +32,25 @@ const WelcomeModal = ({ isOpen, onClose }) => {
         <div className="p-8 space-y-6">
           <div className="text-center">
             <p className="text-xl text-white font-semibold mb-4">
-              Your Private Game Day Experience
+              Where Sunday Gets Serious
             </p>
             <p className="text-gray-300 leading-relaxed">
               Make your picks, compete with friends, and climb the leaderboard! 
               Each week brings new games and new opportunities to show what you know.
+            </p>
+          </div>
+
+          {/* Wager Opening Notice */}
+          <div className="bg-gradient-to-r from-green-900 to-emerald-900 rounded-lg p-5 border border-green-600">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Clock className="h-6 w-6 text-green-400" />
+              <h3 className="text-lg font-bold text-green-400">Wagers Open Soon!</h3>
+            </div>
+            <p className="text-green-100 text-center font-semibold text-lg">
+              Saturday, October 18, 2025 @ 1:00 PM
+            </p>
+            <p className="text-green-200 text-center text-sm mt-2">
+              Get ready to lock in your picks for Week 7! 🔥
             </p>
           </div>
 
@@ -67,6 +78,19 @@ const WelcomeModal = ({ isOpen, onClose }) => {
                 <span>Win big and dominate the leaderboard! 🎉</span>
               </li>
             </ul>
+          </div>
+
+          {/* Beta Testers Shoutout */}
+          <div className="bg-gradient-to-r from-yellow-900 to-amber-900 rounded-lg p-5 border-2 border-yellow-500">
+            <div className="flex items-center justify-center space-x-2 mb-3">
+              <Users className="h-6 w-6 text-yellow-400" />
+              <h3 className="text-lg font-bold text-yellow-400">Shoutout to Our Beta Testers! 🌟</h3>
+            </div>
+            <p className="text-yellow-100 text-center leading-relaxed">
+              A huge thank you to our incredible beta testing crew who helped shape this platform. 
+              Your feedback, dedication, and willingness to break things (so we could fix them) has been invaluable. 
+              This one's for you! 🏆
+            </p>
           </div>
 
           {/* Close button */}
