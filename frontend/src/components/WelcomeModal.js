@@ -2,6 +2,8 @@ import React from 'react';
 import { X, Sparkles, Trophy } from 'lucide-react';
 
 const WelcomeModal = ({ isOpen, onClose }) => {
+  console.log('WelcomeModal render - isOpen:', isOpen); // Debug log
+  
   if (!isOpen) return null;
 
   const handleClose = () => {
