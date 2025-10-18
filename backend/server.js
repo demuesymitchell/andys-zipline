@@ -286,19 +286,55 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
 // ADMIN ROUTES
 // ============================================
 
-// Get all pending wagers (admin)
+// Get all pending wagers grouped by user (admin)
 app.get('/api/admin/wagers/pending', authenticateToken, authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT w.*, u.username, g.home_team, g.away_team, g.game_time
+      SELECT 
+        w.id, w.user_id, w.game_id, w.team, w.amount, w.spread, w.created_at,
+        u.username, u.coins,
+        g.home_team, g.away_team, g.game_time
       FROM wagers w
       JOIN users u ON w.user_id = u.id
       JOIN games g ON w.game_id = g.id
       WHERE w.status = 'pending'
-      ORDER BY w.created_at ASC
+      ORDER BY u.username, w.created_at ASC
     `);
     
-    res.json(result.rows);
+    // Group wagers by user
+    const grouped = result.rows.reduce((acc, row) => {
+      const userId = row.user_id;
+      
+      if (!acc[userId]) {
+        acc[userId] = {
+          userId: userId,
+          user_id: userId, // Add both for compatibility
+          username: row.username,
+          coins: row.coins,
+          balance: row.coins, // Add both for compatibility
+          totalAmount: 0,
+          wagers: []
+        };
+      }
+      
+      acc[userId].totalAmount += row.amount;
+      acc[userId].wagers.push({
+        id: row.id,
+        gameId: row.game_id,
+        gameName: `${row.away_team} @ ${row.home_team}`,
+        team: row.team,
+        amount: row.amount,
+        spread: row.spread,
+        createdAt: row.created_at
+      });
+      
+      return acc;
+    }, {});
+    
+    // Convert object to array
+    const groupedArray = Object.values(grouped);
+    
+    res.json(groupedArray);
   } catch (error) {
     console.error('Get pending wagers error:', error);
     res.status(500).json({ message: 'Server error' });
