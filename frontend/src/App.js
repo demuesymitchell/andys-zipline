@@ -60,6 +60,8 @@ const App = () => {
       fetchGames();
       fetchCart();
       fetchLeaderboard();
+      // Show welcome modal when token is set (after login)
+      setShowWelcome(true);
     }
   }, [token]);
 
