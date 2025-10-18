@@ -10,7 +10,7 @@ const WelcomeModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
-      <div className="bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full border border-gray-700 relative animate-fadeIn">
+      <div className="bg-gray-800 rounded-lg shadow-2xl max-w-xl w-full border border-gray-700 relative animate-fadeIn">
         {/* Close button */}
         <button
           onClick={handleClose}
