@@ -295,7 +295,7 @@ const AdminPanel = ({
             <div className="space-y-4">
               {wagers.filter(w => w.status === 'active').map((wager) => {
                 const game = games.find(g => g.id === wager.gameId);
-                const user = leaderboard.find(u => u.id === wager.userId);
+                const user = leaderboard.find(u => u.id === (wager.userId || wager.user_id));
                 const winPayout = wager.amount * 2;
                 const pushPayout = wager.amount;
                 
