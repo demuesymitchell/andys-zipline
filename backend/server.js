@@ -268,6 +268,7 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
+        id,
         username,
         coins,
         is_admin
