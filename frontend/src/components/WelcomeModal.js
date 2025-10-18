@@ -1,4 +1,3 @@
-// frontend/src/components/WelcomeModal.js
 import React from 'react';
 import { X, Sparkles, Trophy } from 'lucide-react';
 
@@ -29,11 +28,11 @@ const WelcomeModal = ({ isOpen, onClose }) => {
         <div className="p-8 space-y-6">
           <div className="text-center">
             <p className="text-xl text-white font-semibold mb-4">
-              Your Private NFL Betting Experience
+              Your Private Game Day Experience
             </p>
             <p className="text-gray-300 leading-relaxed">
-              Place your bets, compete with friends, and climb the leaderboard! 
-              Each week brings new games and new opportunities to prove your NFL knowledge.
+              Make your picks, compete with friends, and climb the leaderboard! 
+              Each week brings new games and new opportunities to show what you know.
             </p>
           </div>
 
@@ -50,41 +49,17 @@ const WelcomeModal = ({ isOpen, onClose }) => {
               </li>
               <li className="flex items-start">
                 <span className="text-blue-400 mr-2">2.</span>
-                <span>Submit your cart for admin approval</span>
+                <span>Submit your cart for approval</span>
               </li>
               <li className="flex items-start">
                 <span className="text-blue-400 mr-2">3.</span>
-                <span>Watch the games and track your wagers</span>
+                <span>Watch the games and track your picks</span>
               </li>
               <li className="flex items-start">
                 <span className="text-blue-400 mr-2">4.</span>
                 <span>Win big and dominate the leaderboard! 🎉</span>
               </li>
             </ul>
-          </div>
-
-          {/* Beta testers thank you */}
-          <div className="bg-gradient-to-r from-yellow-900 to-orange-900 rounded-lg p-6 border border-yellow-600">
-            <h3 className="text-lg font-bold text-yellow-400 mb-3 text-center">
-              🙏 Special Thanks to Our Beta Testers! 🙏
-            </h3>
-            <p className="text-yellow-100 text-center text-sm mb-3">
-              This platform wouldn't be possible without our amazing beta testing crew:
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 text-yellow-300 font-medium text-sm">
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">chuckd</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">CoreyW</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">AndyM</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">Clickwheel</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">geddylee</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">sfilips</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">bigdaddynick</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">mkorodi</span>
-              <span className="bg-yellow-800 bg-opacity-50 px-3 py-1 rounded-full">MitchD</span>
-            </div>
-            <p className="text-yellow-200 text-center text-xs mt-3 italic">
-              Your feedback and testing has been invaluable! 🏆
-            </p>
           </div>
 
           {/* Close button */}
