@@ -30,16 +30,6 @@ const WelcomeModal = ({ isOpen, onClose }) => {
 
         {/* Content */}
         <div className="p-8 space-y-6">
-          <div className="text-center">
-            <p className="text-xl text-white font-semibold mb-4">
-              Where Sunday Gets Serious
-            </p>
-            <p className="text-gray-300 leading-relaxed">
-              Make your picks, compete with friends, and climb the leaderboard! 
-              Each week brings new games and new opportunities to show what you know.
-            </p>
-          </div>
-
           {/* Wager Opening Notice */}
           <div className="bg-gradient-to-r from-green-900 to-emerald-900 rounded-lg p-5 border border-green-600">
             <div className="flex items-center justify-center space-x-2 mb-2">
