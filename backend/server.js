@@ -604,32 +604,35 @@ app.post('/api/admin/wagers/:id/settle', authenticateToken, authenticateAdmin, a
   }
 });
 
-// Seed Week 7 games (admin only - run once)
+// Seed Week 8 games (admin only - run once)
 app.post('/api/admin/seed-games', authenticateToken, authenticateAdmin, async (req, res) => {
   try {
-    const week7Games = [
-      { id: 'NO@CHI', home_team: 'Chicago Bears', away_team: 'New Orleans Saints', game_time: '1:00 PM', game_date: 'Sunday, October 19' },
-      { id: 'MIA@CLE', home_team: 'Cleveland Browns', away_team: 'Miami Dolphins', game_time: '1:00 PM', game_date: 'Sunday, October 19' },
-      { id: 'NE@TEN', home_team: 'Tennessee Titans', away_team: 'New England Patriots', game_time: '1:00 PM', game_date: 'Sunday, October 19' },
-      { id: 'LV@KC', home_team: 'Kansas City Chiefs', away_team: 'Las Vegas Raiders', game_time: '1:00 PM', game_date: 'Sunday, October 19' },
-      { id: 'PHI@MIN', home_team: 'Minnesota Vikings', away_team: 'Philadelphia Eagles', game_time: '1:00 PM', game_date: 'Sunday, October 19' },
-      { id: 'CAR@NYJ', home_team: 'New York Jets', away_team: 'Carolina Panthers', game_time: '1:00 PM', game_date: 'Sunday, October 19' },
-      { id: 'NYG@DEN', home_team: 'Denver Broncos', away_team: 'New York Giants', game_time: '4:05 PM', game_date: 'Sunday, October 19' },
-      { id: 'IND@LAC', home_team: 'Los Angeles Chargers', away_team: 'Indianapolis Colts', game_time: '4:05 PM', game_date: 'Sunday, October 19' },
-      { id: 'WAS@DAL', home_team: 'Dallas Cowboys', away_team: 'Washington Commanders', game_time: '4:25 PM', game_date: 'Sunday, October 19' },
-      { id: 'GB@ARI', home_team: 'Arizona Cardinals', away_team: 'Green Bay Packers', game_time: '4:25 PM', game_date: 'Sunday, October 19' },
-      { id: 'ATL@SF', home_team: 'San Francisco 49ers', away_team: 'Atlanta Falcons', game_time: '8:20 PM', game_date: 'Sunday, October 19' }
+    const week8Games = [
+      { id: 'MIA@ATL', home_team: 'Atlanta Falcons', away_team: 'Miami Dolphins', game_time: '1:00 PM', game_date: 'Sunday, October 26' },
+      { id: 'CHI@BAL', home_team: 'Baltimore Ravens', away_team: 'Chicago Bears', game_time: '1:00 PM', game_date: 'Sunday, October 26' },
+      { id: 'NYJ@CIN', home_team: 'Cincinnati Bengals', away_team: 'New York Jets', game_time: '1:00 PM', game_date: 'Sunday, October 26' },
+      { id: 'BUF@CAR', home_team: 'Carolina Panthers', away_team: 'Buffalo Bills', game_time: '1:00 PM', game_date: 'Sunday, October 26' },
+      { id: 'SF@HOU', home_team: 'Houston Texans', away_team: 'San Francisco 49ers', game_time: '1:00 PM', game_date: 'Sunday, October 26' },
+      { id: 'CLE@NE', home_team: 'New England Patriots', away_team: 'Cleveland Browns', game_time: '1:00 PM', game_date: 'Sunday, October 26' },
+      { id: 'NYG@PHI', home_team: 'Philadelphia Eagles', away_team: 'New York Giants', game_time: '1:00 PM', game_date: 'Sunday, October 26' },
+      { id: 'TB@NO', home_team: 'New Orleans Saints', away_team: 'Tampa Bay Buccaneers', game_time: '4:05 PM', game_date: 'Sunday, October 26' },
+      { id: 'TEN@IND', home_team: 'Indianapolis Colts', away_team: 'Tennessee Titans', game_time: '4:25 PM', game_date: 'Sunday, October 26' },
+      { id: 'DAL@DEN', home_team: 'Denver Broncos', away_team: 'Dallas Cowboys', game_time: '4:25 PM', game_date: 'Sunday, October 26' },
+      { id: 'GB@PIT', home_team: 'Pittsburgh Steelers', away_team: 'Green Bay Packers', game_time: '8:20 PM', game_date: 'Sunday, October 26' }
     ];
 
-    for (const game of week7Games) {
+    // Delete all existing games to avoid conflicts
+    await pool.query('DELETE FROM games');
+
+    // Insert the new games
+    for (const game of week8Games) {
       await pool.query(`
         INSERT INTO games (id, home_team, away_team, game_time, game_date, status)
         VALUES ($1, $2, $3, $4, $5, 'scheduled')
-        ON CONFLICT (id) DO NOTHING
       `, [game.id, game.home_team, game.away_team, game.game_time, game.game_date]);
     }
 
-    res.json({ message: 'Week 7 games seeded successfully' });
+    res.json({ message: 'Week 8 games seeded successfully' });
   } catch (error) {
     console.error('Seed games error:', error);
     res.status(500).json({ message: 'Server error' });
