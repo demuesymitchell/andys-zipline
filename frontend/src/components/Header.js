@@ -33,7 +33,7 @@ const Header = ({ user, cart, cartTotal, setCartOpen, handleLogout }) => {
             >
               <ShoppingCart className="h-5 w-5 mr-2" />
               <span>Cart</span>
-              {cart.length > 0 && (
+              {cart && cart.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
                   {cart.length}
                 </span>

@@ -447,7 +447,7 @@ const App = () => {
             />
           )}
 
-          {activeTab === 'history' && (
+          {activeTab === 'community picks' && (
             <PlacedWagersTab 
               user={user}
             />
