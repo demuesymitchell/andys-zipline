@@ -1,36 +1,52 @@
 // frontend/src/components/Header.js
 import React from 'react';
-import { User, Coins, ShoppingCart } from 'lucide-react';
+import { LogOut, ShoppingCart, Coins } from 'lucide-react';
 
 const Header = ({ user, cart, cartTotal, setCartOpen, handleLogout }) => {
   return (
-    <header className="bg-gray-800 shadow-sm border-b border-gray-700">
+    <header className="bg-gray-800 border-b border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex items-center justify-between h-16">
+          {/* Left side - App name */}
           <div className="flex items-center">
-            <div className="bg-blue-600 text-white px-2 py-1 rounded font-bold text-lg mr-3">AZ</div>
-            <h1 className="text-xl font-bold text-white">Andy's Zipline - Week 7</h1>
+            <h1 className="text-2xl font-bold text-white">Andy's Zipline</h1>
           </div>
+
+          {/* Right side - User info, cart, logout */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center text-sm text-gray-300">
-              <User className="h-4 w-4 mr-1" />
-              {user?.username} {user?.isAdmin && <span className="ml-2 px-2 py-1 bg-emerald-900 text-emerald-300 text-xs rounded-full">(ADMIN)</span>}
+            {/* User coins */}
+            <div className="flex items-center bg-gray-700 px-4 py-2 rounded-lg">
+              <Coins className="h-5 w-5 text-yellow-400 mr-2" />
+              <span className="text-white font-semibold">{user?.coins || 0}</span>
+              <span className="text-gray-400 text-sm ml-1">coins</span>
             </div>
-            <div className="flex items-center text-sm font-medium text-yellow-400">
-              <Coins className="h-4 w-4 mr-1" />
-              {user?.coins} coins
-            </div>
-            {cart.length > 0 && (
-              <button
-                onClick={() => setCartOpen(true)}
-                className="flex items-center text-sm font-medium text-blue-400 hover:text-blue-300"
-              >
-                <ShoppingCart className="h-4 w-4 mr-1" />
-                {cart.length} items ({cartTotal} coins)
-              </button>
-            )}
-            <button onClick={handleLogout} className="text-sm text-gray-400 hover:text-white">
-              Logout
+
+            {/* Cart button */}
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            >
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              <span>Cart</span>
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                  {cart.length}
+                </span>
+              )}
+              {cartTotal > 0 && (
+                <span className="ml-2 text-yellow-400 font-semibold">
+                  ({cartTotal})
+                </span>
+              )}
+            </button>
+
+            {/* Logout button */}
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center"
+            >
+              <LogOut className="h-5 w-5 mr-2" />
+              <span>Logout</span>
             </button>
           </div>
         </div>

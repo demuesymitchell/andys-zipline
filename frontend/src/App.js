@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 // Import components
 import LoginPage from './components/LoginPage';
+import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Cart from './components/Cart';
 import EditWagerModal from './components/EditWagerModal';
@@ -391,11 +392,20 @@ const App = () => {
     <div className="min-h-screen bg-gray-900">
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       <WelcomeModal 
-        isOpen={showWelcome} 
-        onClose={() => setShowWelcome(false)} 
-      />
-      <Navigation 
-        activeTab={activeTab}
+  isOpen={showWelcome} 
+  onClose={() => setShowWelcome(false)} 
+/>
+
+<Header 
+  user={user}
+  cart={cart}
+  cartTotal={cartTotal}
+  setCartOpen={setCartOpen}
+  handleLogout={handleLogout}
+/>
+
+<Navigation 
+  activeTab={activeTab}
         setActiveTab={setActiveTab}
         user={user}
         groupedPendingWagers={groupedPendingWagers}
