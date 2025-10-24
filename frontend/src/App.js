@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 
 // Import components
-import LoginPage from './components/LoginPage.js';
+import LoginPage from './components/LoginPage';
+import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Cart from './components/Cart';
 import EditWagerModal from './components/EditWagerModal';
