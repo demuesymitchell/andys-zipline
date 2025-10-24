@@ -1,8 +1,9 @@
 // frontend/src/components/Navigation.js
 import React from 'react';
+import { Sparkles } from 'lucide-react';
 
 const Navigation = ({ activeTab, setActiveTab, user, groupedPendingWagers }) => {
-  const tabs = ['games', 'wagers', 'placed wagers', 'leaderboard'];
+  const tabs = ['games', 'wagers', 'community glance', 'leaderboard'];
   if (user?.isAdmin || user?.is_admin) tabs.push('admin');
 
   return (
@@ -13,13 +14,25 @@ const Navigation = ({ activeTab, setActiveTab, user, groupedPendingWagers }) => 
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-colors relative ${
                 activeTab === tab
                   ? 'border-blue-500 text-blue-400'
                   : 'border-transparent text-gray-300 hover:text-white hover:border-gray-500'
               }`}
             >
-              {tab}
+              <span className="flex items-center space-x-1">
+                <span>{tab}</span>
+                {tab === 'community glance' && (
+                  <span className="relative">
+                    <span className="absolute -top-1 -right-8 flex items-center">
+                      <span className="animate-pulse bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-2 py-0.5 rounded-full">
+                        NEW
+                      </span>
+                      <Sparkles className="h-3 w-3 text-yellow-400 ml-1 animate-bounce" />
+                    </span>
+                  </span>
+                )}
+              </span>
               {tab === 'admin' && (user?.isAdmin || user?.is_admin) && groupedPendingWagers.length > 0 && ` (${groupedPendingWagers.length})`}
             </button>
           ))}
