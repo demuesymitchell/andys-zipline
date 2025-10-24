@@ -408,14 +408,6 @@ const App = () => {
         isOpen={showWelcome} 
         onClose={() => setShowWelcome(false)} 
       />
-      
-      <Header 
-        user={user}
-        cart={cart}
-        cartTotal={cartTotal}
-        setCartOpen={setCartOpen}
-        handleLogout={handleLogout}
-      />
 
       <Navigation 
         activeTab={activeTab}
