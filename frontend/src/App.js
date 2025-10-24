@@ -28,7 +28,6 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [games, setGames] = useState([]);
   const [wagers, setWagers] = useState([]);
-  const [wagerHistory, setWagerHistory] = useState(null);
   const [adminActiveWagers, setAdminActiveWagers] = useState([]);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -70,7 +69,6 @@ const App = () => {
   useEffect(() => {
     if (user) {
       fetchWagers();
-      fetchWagerHistory();
     }
   }, [user]);
 
@@ -109,16 +107,6 @@ const App = () => {
     } catch (error) {
       console.error('Failed to fetch wagers:', error);
       setWagers([]);
-    }
-  };
-
-  const fetchWagerHistory = async () => {
-    try {
-      const historyData = await apiCall('/wagers/history', token);
-      setWagerHistory(historyData || null);
-    } catch (error) {
-      console.error('Failed to fetch wager history:', error);
-      setWagerHistory(null);
     }
   };
 
@@ -174,7 +162,6 @@ const App = () => {
       setUser(response.user);
       setStoredToken(response.token);
       setLoginForm({ username: '', password: '' });
-      // Welcome modal will be shown by useEffect when token changes
     } catch (error) {
       showError('Login failed. Please check your credentials.');
     }
@@ -468,7 +455,7 @@ const App = () => {
             />
           )}
 
-          {activeTab === 'placed wagers' && (
+          {activeTab === 'community glance' && (
             <PlacedWagersTab 
               user={user}
             />
