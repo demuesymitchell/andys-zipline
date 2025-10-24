@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 
 // Import components
 import LoginPage from './components/LoginPage';
-import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Cart from './components/Cart';
 import EditWagerModal from './components/EditWagerModal';
@@ -395,15 +394,6 @@ const App = () => {
         isOpen={showWelcome} 
         onClose={() => setShowWelcome(false)} 
       />
-      
-      <Header 
-        user={user}
-        cart={cart}
-        cartTotal={cartTotal}
-        setCartOpen={setCartOpen}
-        handleLogout={handleLogout}
-      />
-
       <Navigation 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
