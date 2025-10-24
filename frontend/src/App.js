@@ -9,6 +9,7 @@ import Cart from './components/Cart';
 import EditWagerModal from './components/EditWagerModal';
 import GamesTab from './components/GamesTab';
 import WagersTab from './components/WagersTab';
+import PlacedWagersTab from './components/PlacedWagersTab';
 import LeaderboardTab from './components/LeaderboardTab';
 import AdminPanel from './components/AdminPanel';
 import WelcomeModal from './components/WelcomeModal';
@@ -161,7 +162,7 @@ const App = () => {
       setUser(response.user);
       setStoredToken(response.token);
       setLoginForm({ username: '', password: '' });
-      setShowWelcome(true); // Show welcome modal after successful login
+      // Welcome modal will be shown by useEffect when token changes
     } catch (error) {
       showError('Login failed. Please check your credentials.');
     }
