@@ -261,6 +261,113 @@ app.get('/api/wagers', authenticateToken, async (req, res) => {
 });
 
 // ============================================
+// WAGER ROUTES
+// ============================================
+
+// Get user's wagers
+app.get('/api/wagers', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT w.*, g.home_team, g.away_team, g.game_time, g.game_date, g.status as game_status
+      FROM wagers w
+      JOIN games g ON w.game_id = g.id
+      WHERE w.user_id = $1
+      ORDER BY w.created_at DESC
+    `, [req.user.userId]);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get wagers error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get user's placed wagers history (all settled wagers)
+app.get('/api/wagers/history', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        w.*,
+        w.game_id,
+        w.created_at as placed_at,
+        w.settled_at,
+        w.amount,
+        w.result,
+        w.spread,
+        w.team,
+        -- Extract game info from game_id (e.g., "MIA@ATL" -> "MIA @ ATL")
+        REPLACE(w.game_id, '@', ' @ ') as game_matchup
+      FROM wagers w
+      WHERE w.user_id = $1 
+        AND w.status = 'settled'
+      ORDER BY w.settled_at DESC, w.created_at DESC
+    `, [req.user.userId]);
+    
+    // Group by week (based on game_id pattern or created_at date)
+    const wagersByWeek = {};
+    
+    result.rows.forEach(wager => {
+      // Extract week from created_at date (you can adjust this logic)
+      const weekKey = new Date(wager.placed_at).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
+      
+      if (!wagersByWeek[weekKey]) {
+        wagersByWeek[weekKey] = {
+          week: weekKey,
+          wagers: [],
+          totalWagered: 0,
+          totalWon: 0,
+          totalLost: 0,
+          wins: 0,
+          losses: 0,
+          pushes: 0,
+          netProfit: 0
+        };
+      }
+      
+      const weekData = wagersByWeek[weekKey];
+      weekData.wagers.push(wager);
+      weekData.totalWagered += wager.amount;
+      
+      if (wager.result === 'win') {
+        weekData.wins++;
+        weekData.totalWon += wager.amount * 2;
+        weekData.netProfit += wager.amount;
+      } else if (wager.result === 'loss') {
+        weekData.losses++;
+        weekData.totalLost += wager.amount;
+        weekData.netProfit -= wager.amount;
+      } else if (wager.result === 'push') {
+        weekData.pushes++;
+      }
+    });
+    
+    // Convert to array and sort by most recent
+    const weeklyData = Object.values(wagersByWeek);
+    
+    res.json({
+      allWagers: result.rows,
+      weeklyBreakdown: weeklyData,
+      totalStats: {
+        totalWagers: result.rows.length,
+        totalWins: weeklyData.reduce((sum, w) => sum + w.wins, 0),
+        totalLosses: weeklyData.reduce((sum, w) => sum + w.losses, 0),
+        totalPushes: weeklyData.reduce((sum, w) => sum + w.pushes, 0),
+        netProfit: weeklyData.reduce((sum, w) => sum + w.netProfit, 0),
+        winRate: result.rows.length > 0 
+          ? ((weeklyData.reduce((sum, w) => sum + w.wins, 0) / result.rows.length) * 100).toFixed(1)
+          : 0
+      }
+    });
+  } catch (error) {
+    console.error('Get wager history error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ============================================
 // LEADERBOARD ROUTE
 // ============================================
 
