@@ -260,28 +260,6 @@ app.get('/api/wagers', authenticateToken, async (req, res) => {
   }
 });
 
-// ============================================
-// WAGER ROUTES
-// ============================================
-
-// Get user's wagers
-app.get('/api/wagers', authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT w.*, g.home_team, g.away_team, g.game_time, g.game_date, g.status as game_status
-      FROM wagers w
-      JOIN games g ON w.game_id = g.id
-      WHERE w.user_id = $1
-      ORDER BY w.created_at DESC
-    `, [req.user.userId]);
-    
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Get wagers error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 // Get user's placed wagers history (all settled wagers)
 app.get('/api/wagers/history', authenticateToken, async (req, res) => {
   try {
@@ -366,7 +344,6 @@ app.get('/api/wagers/history', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 // ============================================
 // LEADERBOARD ROUTE
 // ============================================
