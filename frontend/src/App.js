@@ -392,20 +392,12 @@ const App = () => {
     <div className="min-h-screen bg-gray-900">
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       <WelcomeModal 
-  isOpen={showWelcome} 
-  onClose={() => setShowWelcome(false)} 
-/>
-
-<Header 
-  user={user}
-  cart={cart}
-  cartTotal={cartTotal}
-  setCartOpen={setCartOpen}
-  handleLogout={handleLogout}
-/>
-
-<Navigation 
-  activeTab={activeTab}
+        isOpen={showWelcome} 
+        onClose={() => setShowWelcome(false)} 
+      />
+      
+      <Navigation 
+        activeTab={activeTab}
         setActiveTab={setActiveTab}
         user={user}
         groupedPendingWagers={groupedPendingWagers}
@@ -455,7 +447,7 @@ const App = () => {
             />
           )}
 
-          {activeTab === 'community glance' && (
+          {activeTab === 'history' && (
             <PlacedWagersTab 
               user={user}
             />
