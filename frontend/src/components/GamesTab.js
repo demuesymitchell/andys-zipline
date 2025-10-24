@@ -59,7 +59,7 @@ const GamesTab = ({ games, minimumCartTotal, formatDate, user, addToCart, loadin
       
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-white">Week 7 NFL Games</h2>
+          <h2 className="text-2xl font-bold text-white">Andy's Zipline</h2>
           <div className="text-sm text-gray-400">
             Cart minimum: {minimumCartTotal} coins total (10% of your balance)
           </div>
